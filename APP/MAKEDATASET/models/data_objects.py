@@ -37,7 +37,7 @@ class DataToShow:
         self.set_range(ZMIN, ZMAX)
         self.data: Dict[str, np.ndarray] = {}
         self.add_img(RGB_PREFIX, data_acquisition.rgb)
-        self.add_img(DEPTH_PREFIX, depth2color(data_acquisition.depth))
+        self.add_img(DEPTH_PREFIX, data_acquisition.depth)
         self.hour = data_acquisition.hour.strftime(HOUR_FORMAT)
         for image_name, img in args.items():
             self.add_img(image_name, img)
