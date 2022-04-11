@@ -20,6 +20,8 @@ def depth2color(depth_img: np.ndarray, zmin: int = ZMIN, zmax: int = ZMAX) -> np
         img = img[:, :, 0]
     img = img.astype(float)
     img = 255*(img-zmin)/(zmax-zmin)
+    img[img>255] = 255
+    img[img<0] = 0
     img = img.astype(np.uint8)
     img = cv2.applyColorMap(img, cv2.COLORMAP_JET)
     return img

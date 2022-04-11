@@ -80,7 +80,9 @@ class TestWindow(QWidget):
         layout.addWidget(self.panel_rgb_d)
         
     def update(self,data: DataFromAcquisition):
-        data = DataToShow(data_acquisition=data)
+        zmin, zmax = self.panel_rgb_d.panel_visualization_range.get_range()
+        data = DataToShow(data_acquisition=data, zmin=zmin, zmax=zmax)
+        
         self.panel_rgb_d.update_rgbd(data)
 
 
