@@ -1,7 +1,7 @@
-from PyQt5.QtWidgets import QPushButton, QWidget, QStyle, QApplication, QHBoxLayout
+from PyQt5.QtWidgets import QPushButton, QWidget, QStyle, QApplication, QVBoxLayout, QHBoxLayout
 import sys
 sys.path.append('./')
-from APP.MAKEDATASET.views.basic import LabelFont
+from APP.MAKEDATASET.views.basic import CustomLabel,LabelFont
 
 class BasicButton(QPushButton):
     def __init__(self, name: str, icon_atr: str = None):
@@ -38,8 +38,25 @@ class BackNextButtons(QWidget):
         self.back = BackButton()
         layout.addWidget(self.back)
         layout.addWidget(self.next)
+
+
+class ButtonAndLabel(QWidget):
+    def __init__(self,name_button: str , icon_atr: str= None, parent: QWidget= None):
+        super().__init__(parent=parent)
+        self.button = BasicButton(name_button, icon_atr)
+        self.label = CustomLabel()
+        layout = QVBoxLayout(self)
+        layout.addWidget(self.button)
+        layout.addWidget(self.label)
         
-        
+    def set_text(self, text: str):
+        self.label.setText(text)
+
+class ButtonGetDir(ButtonAndLabel):
+    def __init__(self, parent: QWidget= None):
+        super().__init__('Open','SP_DirOpenIcon')
+    
+    
 # TEST
 ##
 
@@ -48,5 +65,6 @@ if __name__ == '__main__':
     import sys
     app = QApplication(sys.argv)
     window = BackNextButtons()
+    
     window.show()
     sys.exit(app.exec_())
