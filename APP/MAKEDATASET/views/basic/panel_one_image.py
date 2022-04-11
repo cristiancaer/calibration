@@ -1,4 +1,5 @@
 import cv2
+import numpy as np
 import sys
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QApplication, QSizePolicy
 from PyQt5.QtCore import Qt
@@ -34,6 +35,13 @@ class PanelImage(QWidget):
         self.canvas.setMinimumSize(1, 1)
         layout.addWidget(self.label_image_title)
         layout.addWidget(self.canvas)
+    
+    def update_image(self, frame: np.ndarray):
+        """         
+        Args:
+            frame (np.ndarray): an image, it must be a numpy array 3 chanel uint8 datatype
+        """
+        self.canvas.update_image(frame)
 
 
 #TEST
