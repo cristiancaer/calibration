@@ -15,6 +15,7 @@ class PanelDatasetType(CardTemplate):
         self.combobox_datasets
         self.combobox_datasets.addItems(DATASET_TYPES.as_list())
         self.set_central_widget(self.combobox_datasets)
+        self.back_next_buttons.back.setEnabled(False)
         
     def get_selected(self)-> str:
         self.selected_type = self.combobox_datasets.currentText()
