@@ -3,3 +3,4 @@ opencv-python-headless
 PyQt5
 pyqt5-tools
 pyrealsense2
+openni
