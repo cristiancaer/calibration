@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QPushButton, QWidget, QStyle, QApplication, QMainWindow, QGroupBox, QHBoxLayout
+from PyQt5.QtWidgets import QPushButton, QWidget, QStyle, QApplication, QHBoxLayout
 import sys
 sys.path.append('./')
 from APP.MAKEDATASET.views.basic import LabelFont

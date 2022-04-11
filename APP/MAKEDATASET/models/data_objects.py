@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, List
 import numpy as np
 from datetime import datetime
 import sys
@@ -54,3 +54,21 @@ class DataToShow:
         """
         self.zmin = zmin
         self.zmax = zmax
+
+class DatasetTypes:
+    "titles of dataset types"
+    Z_CALIBRATION = 'Z Calibration'
+    UV_CALIBRATION = 'UV Calibration'
+    AREA_CALIBRATION = 'Area Calibration'
+    MILL= 'At Mill'
+    def as_list(self)->List[str]:
+        """
+        Returns:
+            List[str]: All dataset types in a list
+        """
+        return [self.Z_CALIBRATION,
+                self.UV_CALIBRATION,
+                self.AREA_CALIBRATION,
+                self.MILL
+               ]          
+DATASET_TYPES = DatasetTypes()
