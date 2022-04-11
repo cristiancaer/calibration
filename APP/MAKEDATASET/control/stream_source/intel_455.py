@@ -37,24 +37,25 @@ class Intel455(Stream):
         """
         init config to make a connection with the Intel 455 camera
         """
-        self.pipeline = rs.pipeline()
-        config = rs.config()
-
-        # Get device product line for setting a supporting resolution
-        pipeline_wrapper = rs.pipeline_wrapper(self.pipeline)
-        pipeline_profile = config.resolve(pipeline_wrapper)
-        device = pipeline_profile.get_device()
-        
-        # print(device)
-        # config
-        depth_sensor = device.first_depth_sensor()
-        depth_sensor.set_option(rs.option.enable_auto_exposure,1)
-        
-        config.enable_stream(rs.stream.depth, self.shape[1], self.shape[0], rs.format.z16, 30)
-        config.enable_stream(rs.stream.color,self.shape[1], self.shape[0], rs.format.bgr8, 30)
-
-        # Start streaming
         try:
+            self.pipeline = rs.pipeline()
+            config = rs.config()
+
+            # Get device product line for setting a supporting resolution
+            pipeline_wrapper = rs.pipeline_wrapper(self.pipeline)
+            pipeline_profile = config.resolve(pipeline_wrapper)
+            device = pipeline_profile.get_device()
+            
+            # print(device)
+            # config
+            depth_sensor = device.first_depth_sensor()
+            depth_sensor.set_option(rs.option.enable_auto_exposure,1)
+            
+            config.enable_stream(rs.stream.depth, self.shape[1], self.shape[0], rs.format.z16, 30)
+            config.enable_stream(rs.stream.color,self.shape[1], self.shape[0], rs.format.bgr8, 30)
+
+            # Start streaming
+
             self.pipeline.start(config)
             self.setup_done = True
         except Exception:
