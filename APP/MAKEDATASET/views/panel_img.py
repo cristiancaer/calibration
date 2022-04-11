@@ -3,9 +3,9 @@ import sys
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QApplication, QSizePolicy
 from PyQt5.QtCore import Qt
 sys.path.append('./')
-from app.views.pyqt.basic.label_for_image import LabelForImage
-from app.views.pyqt.basic import LabelFont
-from app.models import RGB_PREFIX, TEST_IMG
+from APP.MAKEDATASET.views.basic.label_for_image import LabelForImage
+from APP.MAKEDATASET.views.basic import LabelFont
+from APP.MAKEDATASET.models import RGB_PREFIX, TEST_IMG
 
 
 class PanelImage(QWidget):

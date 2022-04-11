@@ -5,8 +5,8 @@ import numpy as np
 from PyQt5.QtCore import Qt
 import sys
 sys.path.append('./')
-from app.views import depth2color
-from app.models import TEST_IMG
+from APP.MAKEDATASET.views import depth2color
+from APP.MAKEDATASET.models import TEST_IMG
 
 
 class LabelForImage(QLabel):
