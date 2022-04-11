@@ -16,7 +16,7 @@ class BasicButton(QPushButton):
             pixmap = getattr(QStyle, self.icon_atr)
             icon = self.style().standardIcon(pixmap)
             self.setIcon(icon)
-            self.setFont(LabelFont())
+        self.setFont(LabelFont())
 
 
 class NextButton(BasicButton):

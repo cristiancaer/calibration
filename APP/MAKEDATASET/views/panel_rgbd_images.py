@@ -1,16 +1,14 @@
-from cgitb import text
-from tkinter import font
-from turtle import title
 from typing import Tuple
 from PyQt5.QtWidgets import QWidget,QGridLayout, QApplication, QGroupBox, QHBoxLayout
 import sys
-
 import cv2
 sys.path.append('./')
 from APP.MAKEDATASET.views.basic.panel_one_image import PanelImage
-from APP.MAKEDATASET.views.basic import CustomSpinBox, CustomLabel, LabelFont
+from APP.MAKEDATASET.views.basic import CustomSpinBox, LabelFont
 from APP.MAKEDATASET.models import TEST_IMG, ZMIN, ZMAX
 from APP.MAKEDATASET.models.data_objects import DataFromAcquisition, DataToShow
+from APP.MAKEDATASET.views.basic.buttons import BasicButton
+
 
 class PanelMinMaxEdit( QWidget):
     def __init__(self, units: int= None, parent: QWidget= None)->None:
@@ -51,13 +49,15 @@ class PanelRGBDImage(QWidget):
         
         
     def init_gui(self):
+        self.button_reconnect_stream = BasicButton('Reconnect Camara')
         self.panel_visualization_range = PanelMinMaxEdit()
         self.panel_rgb = PanelImage('RGB')
         self.panel_depth = PanelImage('Depth')
         layout = QGridLayout(self)
-        layout.addWidget(self.panel_visualization_range, 0, 0, 1, 2)
-        layout.addWidget(self.panel_rgb, 1, 0, 2, 1)
-        layout.addWidget(self.panel_depth, 1, 1, 2, 1)
+        layout.addWidget(self.button_reconnect_stream, 0, 0 , 1, 2)
+        layout.addWidget(self.panel_visualization_range, 1, 0, 1, 2)
+        layout.addWidget(self.panel_rgb, 2, 0, 2, 1)
+        layout.addWidget(self.panel_depth, 2, 1, 2, 1)
         
     def update_rgbd(self, data_to_show: DataToShow):
         """update rgb-d image pair

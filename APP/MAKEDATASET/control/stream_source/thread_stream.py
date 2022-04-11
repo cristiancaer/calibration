@@ -67,27 +67,23 @@ POSSIBLE_STREAM: Dict[str, Stream]= {}
 
 #TEST
 ################################################################################
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton
-
-
-class TestWindow(QWidget):
-    def __init__(self,parent: QWidget= None)->None:
-        super().__init__()
-        self.panel_rgb_d = PanelRGBDImage(parent)
-        self.button_reconnect_stream = QPushButton('Reconnect stream')
-        layout = QVBoxLayout(self)
-        layout.addWidget(self.button_reconnect_stream)
-        layout.addWidget(self.panel_rgb_d)
-        
-    def update(self,data: DataFromAcquisition):
-        zmin, zmax = self.panel_rgb_d.panel_visualization_range.get_range()
-        data = DataToShow(data_acquisition=data, zmin=zmin, zmax=zmax)
-        
-        self.panel_rgb_d.update_rgbd(data)
 
 
 def test_stream( stream_class: Stream):
-    from PyQt5.QtWidgets import QApplication
+    from APP.MAKEDATASET.views.panel_rgbd_images import PanelRGBDImage
+    from PyQt5.QtWidgets import QApplication, QWidget
+    
+    class TestWindow(PanelRGBDImage):
+        def __init__(self,parent: QWidget= None)->None:
+            super().__init__()
+            
+        def update(self,data: DataFromAcquisition):
+            zmin, zmax = self.panel_visualization_range.get_range()
+            data = DataToShow(data_acquisition=data, zmin=zmin, zmax=zmax)
+            self.update_rgbd(data)
+        
+        
+            
     app = QApplication(sys.argv)
     camara = stream_class()
     thread_stream = ThreadToStream()
