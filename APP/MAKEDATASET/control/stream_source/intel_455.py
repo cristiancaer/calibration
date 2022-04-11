@@ -1,6 +1,5 @@
 ## License: Apache 2.0. See LICENSE file in root directory.
 ## Copyright(c) 2015-2017 Intel Corporation. All Rights Reserved.
-
 from typing import Tuple
 import numpy as np
 import pyrealsense2 as rs
@@ -9,7 +8,6 @@ import sys
 sys.path.append('./')
 from APP.MAKEDATASET.control.stream_source import Stream
 from APP.MAKEDATASET.models.data_objects import DataFromAcquisition
-from APP.MAKEDATASET.views import depth2color
 from APP.MAKEDATASET.models import IMAGE_SHAPE
 
 class Intel455(Stream):
@@ -71,20 +69,20 @@ class Intel455(Stream):
         returns:
             DataFromAcquisition: DataObject that store an rgb and a depth image and the acquisition  time
         """
-        
         try:
+            data = None
             # Wait for a coherent pair of frames: depth and color
             frames = self.pipeline.wait_for_frames()
             depth_frame = frames.get_depth_frame()
             color_frame = frames.get_color_frame()
             # Convert images to numpy arrays
-            rgb = np.asanyarray(depth_frame.get_data())
-            depth = np.asanyarray(color_frame.get_data())
+            depth = np.asanyarray(depth_frame.get_data())
+            rgb = np.asanyarray(color_frame.get_data())
             self.is_working = True
             data = DataFromAcquisition(rgb,depth)
         except:
+            data = None
             self.close()
-            data= None
         finally:
             return data
 
@@ -97,3 +95,10 @@ class Intel455(Stream):
                 self.is_working = False
             except Exception:
                 print('devise disconnected')
+
+#TEST
+################################################################################
+
+if __name__=='__main__':
+    from APP.MAKEDATASET.control.stream_source.thread_stream import test_stream
+    test_stream(Intel455)

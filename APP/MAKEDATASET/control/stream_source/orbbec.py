@@ -1,4 +1,4 @@
-from time import time, sleep
+from time import  sleep
 import numpy as np
 from openni import _openni2 as c_api
 from openni import openni2
@@ -7,7 +7,6 @@ import sys
 sys.path.append('./')
 from APP.MAKEDATASET.control.stream_source import Stream
 from APP.MAKEDATASET.models.data_objects import DataFromAcquisition
-from APP.MAKEDATASET.views import depth2color
 
 
 class Orbbec(Stream):
@@ -101,56 +100,7 @@ class Orbbec(Stream):
 #TEST
 ################################################################################
 def run():
-    camara = Orbbec()
-    camara.setup()
-    n = 40
-
-    def plot_img(i):
-        i = str(i)
-        lapse = time()
-        acquisition = camara.get_stream_data()
-        if acquisition:
-            acquisition.depth = depth2color(acquisition.depth)
-            lapse = time()-lapse
-            window.plot([acquisition.rgb, acquisition.depth], 1, 2, titles=[f'rgb: {i}', 'depth'], info_list=[('lapse', lapse)])
-            # print(lapse)
-            sleep(0.03)
-        else:
-            print('disconnected')
-
-    # test if the camara object can be closed and open again
-    if camara.setup_done:
-        window = ImPlot('Test')
-        for i in range(n):
-            plot_img(i)
-        window.close()
-        camara.close()
-    
-    # restart
-    camara.setup()
-    sleep(1)
-    n = 100
-    if camara.setup_done:
-        window = ImPlot('Test')
-        for i in range(n):
-            plot_img(i)
-        window.close()
-        camara.close()
-        
-    # keep in stream    
-    n=0
-    camara.setup()
-    sleep(1)
-    if camara.setup_done:    
-        while True:
-            window = ImPlot('Test')
-            print(n)
-            plot_img(n)
-            n+=1
-            if window.key_press_in_window=='q':
-                break
-        window.close()
-        camara.close()
-
+    from APP.MAKEDATASET.control.stream_source.thread_stream import test_stream
+    test_stream(Orbbec)
 if __name__ == '__main__':
     run()
