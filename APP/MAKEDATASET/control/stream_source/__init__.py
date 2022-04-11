@@ -1,4 +1,5 @@
 import sys
+from typing import Tuple
 sys.path.append('./')
 from APP.MAKEDATASET.models.data_objects import DataFromAcquisition
 
@@ -7,7 +8,9 @@ class Stream:
     is_working: bool = False  # to inform that the stream has not crashed
     mesage: str = ''  # any usefull information
     setup_done: bool = False  # to know if the basic-configuration was made.
-
+    depth: str = '' # to know the original units of the depth stream
+    shape: Tuple[int] = ()# image shape
+     
     def get_name(self) -> str:
         """
 

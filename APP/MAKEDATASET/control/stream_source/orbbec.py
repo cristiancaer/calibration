@@ -12,7 +12,7 @@ from APP.MAKEDATASET.views import depth2color
 
 class Orbbec(Stream):
     name = 'Orbbec'
-
+    depth_units = '100um'
     def __init__(self) -> None:
         """
         get object to handle an stream from  the  orbbec camara
@@ -39,7 +39,7 @@ class Orbbec(Stream):
             self.TIME_TO_SLEEP = 1/1000
         except Exception:
             self.setup_done = False
-            print('no orbbec devise was found')
+            print('no orbbec device was found')
 
     def get_rgb(self) -> np.ndarray:
         """get rgb-frame from rgb stream
