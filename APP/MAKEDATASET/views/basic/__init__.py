@@ -21,15 +21,15 @@ class CustomLabel(QLabel):
 
 
 class CustomLineEdit(QWidget):
-    def __init__(self, measure_name: str) -> None:
+    def __init__(self, title: str) -> None:
         """
         panel to show the name and the value of only one measure
 
         Args:
-            measure_name (str): name of measure
+            title (str): name of measure
         """
         super().__init__()
-        self.name = measure_name
+        self.name = title
         self.init_gui()
 
     def init_gui(self):
@@ -44,6 +44,13 @@ class CustomLineEdit(QWidget):
         main_layout.addWidget(self.box)
         self.setLayout(main_layout)
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+    
+    def update_title(self, title: str):
+        self.box.setTitle(title)
+        
+    def update_text(self, text: str):
+        self.line_edit.setText(text)
+        
 
 class CustomSpinBox(QWidget):
     
@@ -52,7 +59,7 @@ class CustomSpinBox(QWidget):
         panel to show a title and modify a number value
 
         Args:
-            measure_name (str): name/title of the number value
+            title (str): name/title of the number value
         """
         super().__init__()
         self.STEP_SIZE = 500
