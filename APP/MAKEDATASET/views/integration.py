@@ -42,12 +42,13 @@ class Integration(QWidget):
         self.stack.addWidget(panel)
     
     def go_to_panel(self, panel: QWidget):
-        self.update_info_at_change_panel()
+        self.update_panels_constex()
         index = self.list_panels.index(panel.name)
         self.stack.setCurrentIndex(index)
     
-    def update_info_at_change_panel(self):
-        pass
+    def update_panels_constex(self):
+        dataset_type = self.panel_dataset_type.get_selected()
+        self.panel_to_save.set_title_button_save(dataset_type)
         
 #test
 if __name__=='__main__':
