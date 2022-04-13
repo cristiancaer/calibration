@@ -1,5 +1,8 @@
-from typing import Dict, List
+from genericpath import getsize
+from textwrap import indent
+from typing import Dict, List, Tuple
 import numpy as np
+import cv2
 from datetime import datetime
 import sys
 sys.path.append('./')
@@ -30,23 +33,32 @@ class DataToSave:
         if isinstance(img, np.ndarray):
             self.data.update({name: img})
 
+class InclinationStatus:
+    def __init__(self,threshold: float, inclination_value: float)->None:
+        """
+        used in parallel checking
+
+        Args:
+            thread (float): if |inclination_value|< Thread, we'll consider that the surface is parallel to the camera
+            inclination_value (float): variation in the axis
+        """
+        self.is_parallel = np.absolute(inclination_value)< threshold
+        self.value = inclination_value
+        self.is_positive = inclination_value > 0
 
 class DataToShow:
-    def __init__(self, data_acquisition: DataFromAcquisition, depth_mod: np.ndarray= None, zmin= ZMIN, zmax= ZMAX):
+    def __init__(self, data_acquisition: DataFromAcquisition, zmin= ZMIN, zmax= ZMAX):
         """_summary_
 
         Args:
             data_acquisition (DataFromAcquisition): rgb-d original from stream
-            depth_mod (np.ndarray, optional): a depth image that has been modify to show usefull information. it must be an 3-chanel numpy array with uint8 datatype.Defaults to None.
-        """
         
+        """  
         self.rgb = data_acquisition.rgb
-        if isinstance(depth_mod, np.ndarray):
-            self.depth = depth_mod
-        else:
-            self.depth = depth2color(data_acquisition.depth, zmin=zmin, zmax= zmax)
-
-
+        self.depth = depth2color(data_acquisition.depth, zmin=zmin, zmax= zmax)
+        self.HEIGHT, self.WIDTH = self.rgb.shape[:2]
+        
+    
 class DatasetTypes:
     "titles of dataset types"
     Z_CALIBRATION = 'Z Calibration'

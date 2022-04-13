@@ -49,7 +49,7 @@ class PanelToSave(QWidget):
             
         self.button_save.setText(save_title)
     
-    def set_botton_save_green(self, flat: bool= True):
+    def set_green_buttom_save(self, flat: bool= True):
         if flat:
             color = 'green'
         else: 
@@ -58,7 +58,7 @@ class PanelToSave(QWidget):
         
     def change_status_save(self):
         self.status_save = not self.status_save
-        self.set_botton_save_green(self.status_save)
+        self.set_green_buttom_save(self.status_save)
     
 #Test
 if __name__=='__main__':
