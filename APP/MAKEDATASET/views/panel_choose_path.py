@@ -6,8 +6,8 @@ from APP.MAKEDATASET.views.basic.card_template import CardTemplate
 from APP.MAKEDATASET.views.basic.buttons import ButtonGetDir
 
 
-
-class PanelDatasetType(CardTemplate):
+class PanelChoosePath(CardTemplate):
+    name = 'choose_path'
     def __init__(self):
         """
         a panel where the user will select a dir where the app will save the image
@@ -34,6 +34,6 @@ class PanelDatasetType(CardTemplate):
 if __name__=='__main__':
     from PyQt5.QtWidgets import QApplication
     app = QApplication(sys.argv)
-    window = PanelDatasetType()
+    window = PanelChoosePath()
     window.show()
     sys.exit(app.exec_())

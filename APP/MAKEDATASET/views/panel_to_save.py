@@ -8,7 +8,9 @@ from APP.MAKEDATASET.models.data_objects import DATASET_TYPES
 
         
 class PanelToSave(QWidget):
-    def __init__(self, type_dataset:str, path: str= '', parent: QWidget= None)->None:
+    name = 'save'
+    
+    def __init__(self, type_dataset:str = None, path: str= '', parent: QWidget= None)->None:
         """panel to show and save rgb-d pair image 
 
         Args:
@@ -20,7 +22,6 @@ class PanelToSave(QWidget):
         self.save_title = self.get_title_button_save(self.type_datset)
         self.path = path
         super().__init__(parent=parent)
-        self.get_title_button_save(type_datset=type_dataset)
         self.init_gui()
         
     def init_gui(self):

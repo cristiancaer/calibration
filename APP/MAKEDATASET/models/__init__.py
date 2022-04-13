@@ -7,10 +7,3 @@ IMAGE_SHAPE = (480,640)
 ################################################################################
 CC_ICON_PATH='APP/MAKEDATASET/views/basic/icons/cc.jpg'
 TEST_IMG=CC_ICON_PATH
-
-class DatasetTypes:
-    "titles of dataset types"
-    Z_CALIBRATION = 'Z Calibration'
-    UV_CALIBRATION = 'UV Calibration'
-    AREA_CALIBRATION = 'Area Calibration'
-    MILL= 'At Mill'

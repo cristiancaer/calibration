@@ -5,6 +5,8 @@ sys.path.append('./')
 from APP.MAKEDATASET.views.basic.card_template import CardTemplate
 
 class PanelSelectCamera(CardTemplate):
+    name = 'select_camera'
+    
     def __init__(self):
         """ Panel where the user will select the camera to get the rgb-d image pair
         """

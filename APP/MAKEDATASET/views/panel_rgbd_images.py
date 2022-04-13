@@ -38,6 +38,8 @@ class PanelMinMaxEdit( QWidget):
         self.group_box.setTitle(text)
  
 class PanelRGBDImage(QWidget):
+    name = 'show_rgb_d'
+    
     def __init__(self, parent: QWidget= None):
         """Panel to show an rgb-d image pair
 

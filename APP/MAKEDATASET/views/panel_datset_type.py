@@ -5,6 +5,8 @@ from APP.MAKEDATASET.views.basic.card_template import CardTemplate
 from APP.MAKEDATASET.models.data_objects import DATASET_TYPES
 
 class PanelDatasetType(CardTemplate):
+    name = 'dataset_type'
+    
     def __init__(self):
         """ Panel where the user will select the type of datset that he want to make
         
