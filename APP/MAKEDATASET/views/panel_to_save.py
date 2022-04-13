@@ -18,28 +18,47 @@ class PanelToSave(QWidget):
             path (str): to indicate where te images are 
             parent (QWidget, optional): _description_. Defaults to None.
         """
-        self.type_datset = type_dataset
-        self.save_title = self.get_title_button_save(self.type_datset)
         self.path = path
+        self.status_save = False
         super().__init__(parent=parent)
         self.init_gui()
+        if type_dataset:
+            self.update_button_save(type_dataset)
         
     def init_gui(self):
         layout = QGridLayout(self)
         self.buttom_new_dataset = BasicButton('New Dataset', 'SP_BrowserReload')
-        self.button_save = BasicButton(self.save_title)
+        self.button_save = BasicButton('')
         self.line_edit_last_saved = CustomLineEdit(self.path)
         self.panel_rgb_d = PanelRGBDImage()
         layout.addWidget(self.buttom_new_dataset)
         layout.addWidget(self.button_save)
         layout.addWidget(self.line_edit_last_saved)
         layout.addWidget(self.panel_rgb_d)
+        self.normal_style = self.button_save.style()
         
-    def get_title_button_save(self, type_datset: str)-> str:
+    def update_button_save(self, type_datset: str)-> str:
         save_title = ' TakeScreamshot'
         if type_datset == DATASET_TYPES.MILL:
             save_title = 'Save'
-        return save_title
+        else:
+            self.button_save.setStyleSheet("QPushButton::pressed"
+                             "{"
+                             "background-color : green;"
+                             "}")
+            
+        self.button_save.setText(save_title)
+    
+    def set_botton_save_green(self, flat: bool= True):
+        if flat:
+            color = 'green'
+        else: 
+            color = 'lightgray'
+        self.button_save.setStyleSheet("background-color : {}".format(color))
+        
+    def change_status_save(self):
+        self.status_save = not self.status_save
+        self.set_botton_save_green(self.status_save)
     
 #Test
 if __name__=='__main__':
@@ -47,9 +66,10 @@ if __name__=='__main__':
     app = QApplication(sys.argv)
     path = 'test/path/to/images'
     last_saved_name = 'image_test.jpg'
-    window = PanelToSave(type_dataset=DATASET_TYPES.MILL)
+    window = PanelToSave(type_dataset=DATASET_TYPES.Z_CALIBRATION)
     window.line_edit_last_saved.update_title(path)
     window.line_edit_last_saved.update_text(last_saved_name)
     window.panel_rgb_d.panel_visualization_range.set_units('100um')
+    window.button_save.clicked.connect(window.change_status_save)
     window.show()
     sys.exit(app.exec_())

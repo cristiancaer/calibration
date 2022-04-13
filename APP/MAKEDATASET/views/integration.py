@@ -48,7 +48,7 @@ class Integration(QWidget):
     
     def update_panels_constex(self):
         dataset_type = self.panel_dataset_type.get_selected()
-        self.panel_to_save.set_title_button_save(dataset_type)
+        self.panel_to_save.update_button_save(dataset_type)
         
 #test
 if __name__=='__main__':
