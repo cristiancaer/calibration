@@ -44,7 +44,7 @@ class ButtonAndLabel(QWidget):
     def __init__(self,name_button: str , icon_atr: str= None, parent: QWidget= None):
         super().__init__(parent=parent)
         self.button = BasicButton(name_button, icon_atr)
-        self.label = CustomLabel()
+        self.label = CustomLabel(center=True)
         layout = QVBoxLayout(self)
         layout.addWidget(self.button)
         layout.addWidget(self.label)

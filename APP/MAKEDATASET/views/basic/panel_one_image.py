@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QApplication, QSizePol
 from PyQt5.QtCore import Qt
 sys.path.append('./')
 from APP.MAKEDATASET.views.basic.label_for_image import LabelForImage
-from APP.MAKEDATASET.views.basic import LabelFont
+from APP.MAKEDATASET.views.basic import CustomLabel
 from APP.MAKEDATASET.models import RGB_PREFIX, TEST_IMG
 
 
@@ -24,10 +24,7 @@ class PanelImage(QWidget):
         layout = QVBoxLayout()
         self.setLayout(layout)
         # image title
-        self.label_image_title = QLabel(self.title)
-        self.label_image_title.setFont(LabelFont())
-        self.label_image_title.setAlignment(Qt.AlignCenter)
-        self.label_image_title.setMinimumSize(1, 40)
+        self.label_image_title = CustomLabel(self.title, center=True)
         self.label_image_title.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
         # canvas
         self.canvas = LabelForImage()
