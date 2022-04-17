@@ -1,8 +1,6 @@
-from genericpath import getsize
-from textwrap import indent
-from typing import Dict, List, Tuple
+from multipledispatch import dispatch
+from typing import Dict, List, Any
 import numpy as np
-import cv2
 from datetime import datetime
 import sys
 sys.path.append('./')
@@ -76,3 +74,30 @@ class DatasetTypes:
                 self.MILL
                ]          
 DATASET_TYPES = DatasetTypes()
+
+# @dispatch(list)
+# def int_array(number_list:List[Any])->np.ndarray:
+#     """make an array of int numbers 
+
+#     Args:
+#         number_list (Any[int,float]): list of int or float numbers
+
+#     Returns:
+#         np.ndarray: array of int numbers and shape = -1
+#     """
+#     return np.array(number_list, dtype=np.uint8)
+
+def int_array(*args: Any)-> np.ndarray:
+    """make an array of int numbers 
+
+    Args:
+        number_list (Any[int,float]): list of int or float numbers, it cannot be a list object
+
+    Returns:
+        np.ndarray: array of int numbers and shape = -1
+    """
+    buffer: List[Any[int,float]] = []
+    for value in args:
+        if not isinstance(value,list):
+            buffer.append(value)
+    return np.array(buffer,dtype=int)
