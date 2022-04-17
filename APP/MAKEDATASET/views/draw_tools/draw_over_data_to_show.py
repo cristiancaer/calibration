@@ -17,9 +17,9 @@ class DrawDataToShow(DataToShow):
     Len_CENTERED_LINES = 40
     FONT = cv2.FONT_HERSHEY_SIMPLEX
     FONT_COLOR = (255, 255, 255)
-    FONT_SCALE = 1
+    FONT_SCALE = 0.7
     FONT_LINE = cv2.LINE_AA
-    FONT_THICKNESS = 5
+    FONT_THICKNESS = 2
     def get_mid_point(self)-> np.ndarray:
         """mid of the images
 
@@ -90,7 +90,7 @@ class DrawDataToShow(DataToShow):
         
     def draw_parallel_information(self, vertical_variation: InclinationStatus, horizontal_variation : InclinationStatus):
         if not horizontal_variation.is_parallel:
-            self. draw_horizontal_row(horizontal_variation.is_positive)
+            self.draw_horizontal_row(horizontal_variation.is_positive)
         
         if not vertical_variation.is_parallel:
             self.draw_vertical_row(vertical_variation.is_positive)
@@ -108,12 +108,13 @@ class DrawDataToShow(DataToShow):
 if __name__=='__main__':
     from APP.MAKEDATASET.views.panel_rgbd_images import PanelRGBDImage
     from PyQt5.QtWidgets import QApplication
-    img_test = np.zeros( (480, 640, 3))
-    data_to_show = DrawDataToShow(DataFromAcquisition(rgb=img_test, depth=img_test))
-    thr = 20
-    vertical_variation = InclinationStatus(thr, 100) #  top inclination
-    horizontal_variation = InclinationStatus(thr, -100)# right inclination
-    data_to_show.draw_parallel_information(vertical_variation, horizontal_variation)
+    img_test = np.zeros( (400, 400, 3))
+    depth =  np.arange(0, 320000, 2 , dtype= int).reshape(400, 400)
+    data_to_show = DrawDataToShow(DataFromAcquisition(rgb=img_test, depth=depth))
+    thr = 2
+    y_var = InclinationStatus(thr, -80) #  top inclination
+    x_var = InclinationStatus(thr, -8)# right inclination
+    data_to_show.draw_parallel_information(y_var, x_var)
     data_to_show.draw_rectangle(top_point=[10, 50], bot_point=[200, 200])
     data_to_show.draw_is_parallel(in_vertical=True, in_horizontal=True)
     app = QApplication(sys.argv)
