@@ -4,7 +4,6 @@ from time import sleep
 import sys
 sys.path.append('./')
 from APP.MAKEDATASET.models.data_objects import DataFromAcquisition, DataToShow
-from APP.MAKEDATASET.views.panel_rgbd_images import PanelRGBDImage
 from APP.MAKEDATASET.control.stream_source import Stream
 
 
