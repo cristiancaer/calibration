@@ -9,10 +9,10 @@ from APP.MAKEDATASET.models.data_objects import DataFromAcquisition, DataToSave
 class ThreadToSave(QThread):
     last_index = pyqtSignal(str)
     
-    def __init__(self, path: str, datatime_index: bool = False):
+    def __init__(self, path: str = None, datatime_index: bool = False):
         super().__init__()
-        self.use_datatime_index = datatime_index
-        self.path = path
+        self.use_datatime_index = self.set_index_type(datatime_index)
+        self.path = self.set_path(path)
         self.index = 0
         self.queue = Queue(50)
         self.is_running = True
@@ -20,6 +20,12 @@ class ThreadToSave(QThread):
         
     def add_new(self, data_to_save: DataToSave):
         self.queue.put(data_to_save)
+        
+    def set_path(self, path: str)-> None:
+        self.path = path
+        
+    def set_index_type(self, datatime_index: bool):
+        self.use_datatime_index = datatime_index
         
     def get_last_pair(self)-> DataToSave:
         return self.queue.get()
