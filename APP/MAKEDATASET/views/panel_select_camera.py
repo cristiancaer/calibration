@@ -31,6 +31,8 @@ class PanelSelectCamera(CardTemplate):
     def update_available_streams(self, list_availables: List[str]):
         self.combobox_cameras.clear()
         self.combobox_cameras.addItems(list_availables)
+
+
 #TEST
 ################################################################################
 

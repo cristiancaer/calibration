@@ -89,7 +89,7 @@ if __name__=='__main__':
     window = PanelRGBDImage()
     window.set_dark_images()
     window.panel_visualization_range.set_units('100 um')
-    # window.update_rgbd(data_to_show)
+    window.update_rgbd(data_to_show)
     window.show()
     sys.exit(app.exec_())
 
