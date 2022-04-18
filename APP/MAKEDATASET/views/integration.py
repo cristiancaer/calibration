@@ -62,7 +62,8 @@ class Integration(QWidget):
         else:
             self.panel_select_camera.back_next_buttons.next.clicked.connect(lambda: self.go_to_panel(self.panel_to_save))
         
-#test
+#TEST
+################################################################################
 if __name__=='__main__':
     from PyQt5.QtWidgets import QApplication
     app = QApplication(sys.argv)

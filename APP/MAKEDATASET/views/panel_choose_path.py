@@ -21,15 +21,19 @@ class PanelChoosePath(CardTemplate):
         self.button_path = ButtonGetDir()
         self.button_path.button.clicked.connect(self.get_path)
         self.set_central_widget(self.button_path)
+        self.back_next_buttons.next.setEnabled(False)
 
     @pyqtSlot()
     def get_path(self):
         self.path = QFileDialog.getExistingDirectory()
         self.button_path.set_text(self.path)
         print(self.path)
-    
-    
+        if self.path:
+            self.back_next_buttons.next.setEnabled(True)
+            
+            
 #TEST
+################################################################################
 
 if __name__=='__main__':
     from PyQt5.QtWidgets import QApplication
