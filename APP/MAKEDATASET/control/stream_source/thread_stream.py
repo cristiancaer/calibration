@@ -87,7 +87,13 @@ class ThreadToStream(QThread):
     def get_available_stream_names(self)-> List[str]:
         self.update_availables()
         return list(self.available_streams.keys())
-
+    
+    def reset_stream(self):
+        self.set_stop(True)
+        sleep(0.1)
+        if hasattr(self.actual_stream, 'close'):
+            self.actual_stream.close()
+        self.actual_stream = None    
 POSSIBLE_STREAM: Dict[str, Stream]= {}
 
 #TEST
