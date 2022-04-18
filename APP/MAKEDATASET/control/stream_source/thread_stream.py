@@ -114,6 +114,7 @@ def test_stream( stream_class: Stream):
     thread_stream = ThreadToStream()
     thread_stream.start()
     thread_stream.add_stream(camara)
+    thread_stream.update_availables()
     thread_stream.set_stream(camara.name)
     window = TestWindow()
     window.show()
