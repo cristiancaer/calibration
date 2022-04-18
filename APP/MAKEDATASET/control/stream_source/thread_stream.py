@@ -33,7 +33,8 @@ class ThreadToStream(QThread):
                     stream.close()
                     self.available_streams.update({stream.name:stream})
                 else:
-                    self.available_streams.pop(stream.name)
+                    if stream.name in self.available_streams:
+                        self.available_streams.pop(stream.name)
      
     def set_stop(self, flat: bool= True):
         self.stop = flat
@@ -70,17 +71,22 @@ class ThreadToStream(QThread):
     def run(self) -> None:
         while self.is_running:
             if not self.stop:
-                data = self.actual_stream.get_stream_data()
-                if data:
-                    self.data_ready.emit(data)
-                else:
-                    self.stop = True
-                    self.message = f' stream with name ({self.actual_stream.name}) is disconnected'
-                    print(self.actual_stream)
+                if self.actual_stream:
+                    data = self.actual_stream.get_stream_data()
+                    if data:
+                        self.data_ready.emit(data)
+                    else:
+                        self.stop = True
+                        self.message = f' stream with name ({self.actual_stream.name}) is disconnected'
+                        print(self.actual_stream)
     
     def close(self):
         self.stop = True
         self.is_running = False
+    
+    def get_available_stream_names(self)-> List[str]:
+        self.update_availables()
+        return list(self.available_streams.keys())
 
 POSSIBLE_STREAM: Dict[str, Stream]= {}
 
