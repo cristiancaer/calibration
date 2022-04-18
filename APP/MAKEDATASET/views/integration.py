@@ -1,5 +1,3 @@
-from ast import arg
-from tkinter import Widget
 from typing import List
 from PyQt5.QtWidgets import QWidget, QStackedWidget, QGridLayout
 import sys
@@ -35,7 +33,10 @@ class Integration(QWidget):
         self.add_panel(self.panel_select_camera)
         self.panel_to_save = PanelToSave()
         self.add_panel(self.panel_to_save)
-        
+        self.panel_dataset_type.back_next_buttons.next.clicked.connect(lambda: self.go_to_panel(self.panel_choose_path))
+        self.panel_choose_path.back_next_buttons.back.clicked.connect(lambda: self.go_to_panel(self.panel_dataset_type))
+        self.panel_choose_path.back_next_buttons.next.clicked.connect(lambda: self.go_to_panel(self.panel_select_camera))
+        self.panel_select_camera.back_next_buttons.back.clicked.connect(lambda: self.go_to_panel(self.panel_choose_path))
         
     def add_panel(self, panel: QWidget):
         self.list_panels.append(panel.name)
