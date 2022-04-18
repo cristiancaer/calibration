@@ -1,4 +1,5 @@
 from typing import Tuple
+import numpy as np
 from PyQt5.QtWidgets import QWidget,QGridLayout, QApplication, QGroupBox, QHBoxLayout
 import sys
 import cv2
@@ -70,7 +71,15 @@ class PanelRGBDImage(QWidget):
         self.panel_rgb.update_image(data_to_show.rgb)
         self.panel_depth.update_image(data_to_show.depth)
         
-
+    def set_dark_image(self):
+        """
+        put a dark (zeros) pair image in the panel rgb-d
+        """
+        img = np.zeros((400,400,3), dtype= np.uint8)
+        data_to_show = DataToShow(DataFromAcquisition(img,img))
+        self.update_rgbd(data_to_show)
+        
+        
 #TEST
 
 if __name__=='__main__':
