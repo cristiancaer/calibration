@@ -35,7 +35,7 @@ class MainWindow(QMainWindow):
         self.stream_handler.data_ready.connect(self.save_images)
         self.update_available_streams()
         self.panels.panel_select_camera.button_update_streams.clicked.connect(self.update_available_streams)
-        self.panels.panel_select_camera.combobox_cameras.currentTextChanged.connect(self.set_stream)
+        # self.panels.panel_select_camera.combobox_cameras.currentTextChanged.connect(self.set_stream)
         self.panels.panel_to_save.panel_rgb_d.button_reconnect_stream.clicked.connect(self.set_stream)
         
         # save config

@@ -78,6 +78,7 @@ class ThreadToStream(QThread):
                     else:
                         self.stop = True
                         self.message = f' stream with name ({self.actual_stream.name}) is disconnected'
+                        print(self.message)
                         print(self.actual_stream)
     
     def close(self):
