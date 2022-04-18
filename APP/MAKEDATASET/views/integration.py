@@ -6,6 +6,7 @@ from APP.MAKEDATASET.views.panel_datset_type import PanelDatasetType
 from APP.MAKEDATASET.views.panel_choose_path import PanelChoosePath
 from APP.MAKEDATASET.views.panel_select_camera import PanelSelectCamera
 from APP.MAKEDATASET.views.panel_to_save import PanelToSave
+from APP.MAKEDATASET.models.data_objects import DATASET_TYPES
 
 
 class Integration(QWidget):
@@ -33,10 +34,13 @@ class Integration(QWidget):
         self.add_panel(self.panel_select_camera)
         self.panel_to_save = PanelToSave()
         self.add_panel(self.panel_to_save)
+        # panelDatasetType
         self.panel_dataset_type.back_next_buttons.next.clicked.connect(lambda: self.go_to_panel(self.panel_choose_path))
+        # PanelChoosePath
         self.panel_choose_path.back_next_buttons.back.clicked.connect(lambda: self.go_to_panel(self.panel_dataset_type))
         self.panel_choose_path.back_next_buttons.next.clicked.connect(lambda: self.go_to_panel(self.panel_select_camera))
-        self.panel_select_camera.back_next_buttons.back.clicked.connect(lambda: self.go_to_panel(self.panel_choose_path))
+
+            
         
     def add_panel(self, panel: QWidget):
         self.list_panels.append(panel.name)
@@ -48,16 +52,20 @@ class Integration(QWidget):
         self.stack.setCurrentIndex(index)
     
     def update_panels_constex(self):
-        dataset_type = self.panel_dataset_type.get_selected()
-        self.panel_to_save.update_button_save(dataset_type)
+        self.dataset_type = self.panel_dataset_type.get_selected()
+        self.panel_to_save.update_button_save(self.dataset_type)
+        # PanelSelectCamera
+        self.panel_select_camera.back_next_buttons.back.clicked.connect(lambda: self.go_to_panel(self.panel_choose_path))
+        if self.dataset_type == DATASET_TYPES.AREA_CALIBRATION or self.dataset_type == DATASET_TYPES.Z_CALIBRATION:
+            self.panel_select_camera.back_next_buttons.next.clicked.connect(lambda: self.go_to_panel(self.panel_to_save))
+
+        else:
+            self.panel_select_camera.back_next_buttons.next.clicked.connect(lambda: self.go_to_panel(self.panel_to_save))
         
 #test
 if __name__=='__main__':
     from PyQt5.QtWidgets import QApplication
     app = QApplication(sys.argv)
     window = Integration()
-    window.panel_dataset_type.back_next_buttons.next.clicked.connect(lambda : window.go_to_panel(window.panel_choose_path))
-    window.panel_choose_path.back_next_buttons.next.clicked.connect(lambda : window.go_to_panel(window.panel_select_camera))
-    window.panel_select_camera.back_next_buttons.next.clicked.connect(lambda : window.go_to_panel(window.panel_to_save))
     window.show()
     sys.exit(app.exec_())
