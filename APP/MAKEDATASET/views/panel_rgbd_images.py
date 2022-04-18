@@ -71,24 +71,25 @@ class PanelRGBDImage(QWidget):
         self.panel_rgb.update_image(data_to_show.rgb)
         self.panel_depth.update_image(data_to_show.depth)
         
-    def set_dark_image(self):
+    def set_dark_images(self):
         """
         put a dark (zeros) pair image in the panel rgb-d
         """
         img = np.zeros((400,400,3), dtype= np.uint8)
-        data_to_show = DataToShow(DataFromAcquisition(img,img))
-        self.update_rgbd(data_to_show)
+        self.panel_depth.update_image(img)
+        self.panel_rgb.update_image(img)
         
         
 #TEST
 
 if __name__=='__main__':
     img_test = cv2.imread(TEST_IMG)
-    data_to_show = DataToShow(DataFromAcquisition(rgb=img_test, depth=img_test), depth_mod= img_test)
+    data_to_show = DataToShow(DataFromAcquisition(rgb=img_test, depth=img_test))
     app = QApplication(sys.argv)
     window = PanelRGBDImage()
+    window.set_dark_images()
     window.panel_visualization_range.set_units('100 um')
-    window.update_rgbd(data_to_show)
+    # window.update_rgbd(data_to_show)
     window.show()
     sys.exit(app.exec_())
 
