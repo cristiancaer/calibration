@@ -10,7 +10,15 @@ class Stream:
     setup_done: bool = False  # to know if the basic-configuration was made.
     depth_units: str = '' # to know the original units of the depth stream
     shape: Tuple[int] = ()# image shape
-     
+    
+    def __eq__(self, __o: object) -> bool:
+        if not hasattr(__o, 'name'):
+            return False
+        return self.name == __o.name
+    
+    def __ne__(self, __o: object)-> bool:
+        return not self.__eq__(__o)
+    
     def get_name(self) -> str:
         """
 

@@ -1,4 +1,5 @@
-from typing import Dict
+from typing import Dict, List
+from unicodedata import name
 from PyQt5.QtCore import QThread, pyqtSignal
 from time import sleep
 import sys
@@ -18,23 +19,42 @@ class ThreadToStream(QThread):
         self.is_running = True# loop condition 
         self.stop = True# start with a stopped acquisition
         self.actual_stream: Stream = None
-        
+        self.possible_streams: List[Stream] = []
+        self.available_streams: Dict[str, Stream] = {}
+    
+    def add_stream(self, stream: Stream):
+        self.possible_streams.append(stream)
+    
+    def update_availables(self):
+        for stream in self.possible_streams:
+            if stream != self.actual_stream:
+                stream.setup()
+                if stream.setup_done:
+                    stream.close()
+                    self.available_streams.update({stream.name:stream})
+                else:
+                    self.available_streams.pop(stream.name)
+     
     def set_stop(self, flat: bool= True):
         self.stop = flat
         
-    def set_stream(self, new_stream: Stream= None):
+    def set_stream(self, stream_name: str= None):
         """ 
         Args:
             new_stream (Stream, optional): Stream Object where get the rgb-dept  pair image, if not args is given, it try to setup the last Stream given. Defaults to None.
         """
+        
         self.stop = True
         sleep(0.1)
         if hasattr(self.actual_stream, 'close'):
             self.actual_stream.close()
 
-        if not new_stream:
+        if not stream_name:
             # Try to reconnect the actual stream
             new_stream = self.actual_stream
+        else:
+            new_stream = self.available_streams.get(stream_name)
+
         if isinstance(new_stream, Stream):
             print(f'stream from : {new_stream.name}')
             new_stream.setup()
@@ -87,7 +107,8 @@ def test_stream( stream_class: Stream):
     camara = stream_class()
     thread_stream = ThreadToStream()
     thread_stream.start()
-    thread_stream.set_stream(camara)
+    thread_stream.add_stream(camara)
+    thread_stream.set_stream(camara.name)
     window = TestWindow()
     window.show()
     thread_stream.data_ready.connect(window.update)
