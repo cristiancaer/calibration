@@ -1,4 +1,5 @@
 from time import  sleep
+from cv2 import CV_32F
 import numpy as np
 from openni import _openni2 as c_api
 from openni import openni2
@@ -39,6 +40,9 @@ class Orbbec(Stream):
         except Exception:
             self.setup_done = False
             print('no orbbec device was found')
+            
+    def horizontal_flip(self,img: np.ndarray)->np.ndarray:
+        cv2.flip(img, 1)        
 
     def get_rgb(self) -> np.ndarray:
         """get rgb-frame from rgb stream
@@ -50,9 +54,9 @@ class Orbbec(Stream):
         bgr = np.frombuffer(self.rgb_stream.read_frame().get_buffer_as_uint16(), dtype=np.uint8).reshape(480, 640, 3)
         sleep(self.TIME_TO_SLEEP)
         rgb = cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB)
-        return rgb
-
-            
+        self.horizontal_flip(bgr)
+        return bgr
+    
     def get_depth(self) -> np.ndarray:
         """get depth-frame form depth-stream
 
@@ -64,7 +68,9 @@ class Orbbec(Stream):
         depth.shape = (480, 640)
         # cv2.imshow("h",depth)
         depth = cv2.merge([depth, depth, depth])  # for some reason when the union/merge of the three chanel is not make the are information lost in the depth-image.
-        return depth[:, :, 0]
+        depth = depth[:, :, 0]
+        self.horizontal_flip(depth) # horizontal flip
+        return depth
 
     def get_stream_data(self) -> DataFromAcquisition:
         """ 
