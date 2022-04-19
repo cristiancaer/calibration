@@ -1,5 +1,5 @@
 import numpy as np
-from typing import  Tuple
+from typing import  Tuple, List
 import cv2
 import sys
 sys.path.append('./')
@@ -16,7 +16,7 @@ class DrawDataToShow(DataToShow):
     ARROW_LENGTH = 0.7 # range min 0, max 1
     Len_CENTERED_LINES = 40
     FONT = cv2.FONT_HERSHEY_SIMPLEX
-    FONT_COLOR = (255, 255, 255)
+    FONT_COLOR = (0, 255, 0)
     FONT_SCALE = 0.7
     FONT_LINE = cv2.LINE_AA
     FONT_THICKNESS = 2
@@ -33,9 +33,21 @@ class DrawDataToShow(DataToShow):
     def get_zip(self, in_rgb: bool= False, in_depth: bool= True)-> zip:
         return zip([in_rgb, in_depth], [self.rgb, self.depth])
     
-    def draw_rectangle(self, top_point: Tuple[int], bot_point: Tuple[int], in_rgb: bool= False, in_depth: bool= True):
+    def draw_rectangle(self, top_point: List[int], bot_point: List[int], in_rgb: bool= False, in_depth: bool= True):
+        """draw a rectangle, usefull to show a ROI
+
+        Args:
+            top_point (List[int]): [x, y]
+            bot_point (List[int]): [x, y]
+            in_rgb (bool, optional):  if True, draw in rgb. Defaults to False.
+            in_depth (bool, optional): if True, draw in depth. Defaults to True.
+        """
         for flat, img in self.get_zip(in_rgb, in_depth):
             if flat:
+                if bot_point[0] <0 :
+                    bot_point[0] = self.WIDTH + bot_point[0]
+                if bot_point[1] <0 :
+                    bot_point[1] = self.HEIGHT + bot_point[1]
                 cv2.rectangle(img, top_point, bot_point, self.SQUARE_COLOR, self.THICKNESS) 
     
     def _draw_plus_sign(self, img: np.ndarray, center_point: Tuple[int], line_length: int):
@@ -98,9 +110,9 @@ class DrawDataToShow(DataToShow):
         
         self.draw_is_parallel(vertical_variation.is_parallel, horizontal_variation.is_parallel)
         
-        text = f'eX: {horizontal_variation.value} ; eY: {vertical_variation.value}'
+        text = f'eX: {int(horizontal_variation.value)} ; eY: {int(vertical_variation.value)}'
         origin = (40,40)
-        self.add_text(self.depth, text, origin)
+        self.add_text(self.rgb, text, origin)
     
 #TEST
 ################################################################################
@@ -115,7 +127,7 @@ if __name__=='__main__':
     y_var = InclinationStatus(thr, -80) #  top inclination
     x_var = InclinationStatus(thr, -8)# right inclination
     data_to_show.draw_parallel_information(y_var, x_var)
-    data_to_show.draw_rectangle(top_point=[10, 50], bot_point=[200, 200])
+    data_to_show.draw_rectangle(top_point=[10, 50], bot_point=[-200, 200])
     data_to_show.draw_is_parallel(in_vertical=True, in_horizontal=True)
     app = QApplication(sys.argv)
     window = PanelRGBDImage()
