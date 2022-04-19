@@ -54,7 +54,6 @@ class LabelForImage(QLabel):
             path (str): path and name to the file
         """
         img = cv2.imread(path_name)
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         if hasattr(img, 'shape'):
             self.update_image(img)
         else:
