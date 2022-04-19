@@ -8,6 +8,7 @@ from APP.MAKEDATASET.control.stream_source.thread_stream import ThreadToStream
 from APP.MAKEDATASET.control.save_pair_images import ThreadToSave
 from APP.MAKEDATASET.models.data_objects import DATASET_TYPES, DataToSave, DataFromAcquisition, DatasetTypes
 from APP.MAKEDATASET.views.draw_tools.draw_over_data_to_show import DrawDataToShow
+from APP.MAKEDATASET.control.check_parallel.through_square import ThroughSquare
 
 
 class MainWindow(QMainWindow):
@@ -46,6 +47,9 @@ class MainWindow(QMainWindow):
         self.panels.panel_to_save.button_save.clicked.connect(self.change_status_saving)
         self.save_handler.last_index.connect(self.panels.panel_to_save.line_edit_last_saved.update_text)
         
+        # check config
+        self.check_parallel = ThroughSquare(top_point=[100,100], bottom_point=[-100,-100], threshold=10, line_width= 15)
+        
     def update_save_info(self):
         path = self.panels.panel_choose_path.path
         self.save_handler.set_path(path)
@@ -67,7 +71,9 @@ class MainWindow(QMainWindow):
         zmin, zmax = self.panels.panel_to_save.panel_rgb_d.panel_visualization_range.get_range() 
         data_to_show = DrawDataToShow(data, zmin, zmax)
         if dataset_type == DATASET_TYPES.AREA_CALIBRATION or dataset_type == DATASET_TYPES.Z_CALIBRATION:
-            pass
+            y_status, x_status = self.check_parallel.check(data.depth)
+            data_to_show.draw_parallel_information(y_status, x_status)
+            data_to_show.draw_rectangle(self.check_parallel.top_point[::-1], self.check_parallel.bottom_point[::-1])# original are in array index reference [row, column]. draw has [x,y] index reference
         self.panels.panel_to_save.panel_rgb_d.update_rgbd(data_to_show)
     
     def save_images(self, data:DataFromAcquisition)->None:

@@ -3,6 +3,8 @@ import numpy as np
 import sys
 sys.path.append('./')
 from APP.MAKEDATASET.models.data_objects import InclinationStatus
+
+
 class ThroughSquare:
 
     def __init__(self, top_point: Tuple[int], bottom_point: Tuple[int], line_width: int, threshold: float) -> None:
@@ -49,8 +51,8 @@ class ThroughSquare:
             
 
         Args:
-            top_point (Tuple[int]): left-top point of the cosidered square
-            bottom_point (Tuple[int]): right-bottom point of the cosidered square
+            top_point (Tuple[int]): left-top point of the cosidered square, array index reference. [row,column]
+            bottom_point (Tuple[int]): right-bottom point of the cosidered square. [row, column]
             line_width (int): square width line
             threshold (float): thread to consider where there are an inclination
         """
@@ -101,9 +103,9 @@ if __name__=='__main__':
     depth = np.arange(0, 160000, 1, dtype=int).reshape(400,400)
     data_to_show = DrawDataToShow(DataFromAcquisition(rgb=rgb, depth=depth))
     # roi
-    top_point = (100,100)
-    bot_point = (300,300)
-    line_width = 2
+    top_point = [50, 40]
+    bot_point = [-15, -15]
+    line_width = 15
     # thread consider in inclination
     thr = 200
     check_parallel = ThroughSquare(top_point, bot_point, line_width, thr)
