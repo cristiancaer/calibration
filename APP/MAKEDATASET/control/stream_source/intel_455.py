@@ -9,6 +9,7 @@ sys.path.append('./')
 from APP.MAKEDATASET.control.stream_source import Stream
 from APP.MAKEDATASET.models.data_objects import DataFromAcquisition
 from APP.MAKEDATASET.models import IMAGE_SHAPE
+import traceback
 
 class Intel455(Stream):
     name = 'intel455'
@@ -50,9 +51,12 @@ class Intel455(Stream):
             # config
             depth_sensor = device.first_depth_sensor()
             depth_sensor.set_option(rs.option.enable_auto_exposure,1)
+            depth_sensor.set_option(rs.option.depth_units,0.0001)
+            depth_sensor.set_option(rs.option.emitter_enabled, 1)
             
             config.enable_stream(rs.stream.depth, self.shape[1], self.shape[0], rs.format.z16, 30)
-            config.enable_stream(rs.stream.color,self.shape[1], self.shape[0], rs.format.bgr8, 30)
+            config.enable_stream(rs.stream.infrared, 1, self.shape[1], self.shape[0], rs.format.y8, 30)
+            # config.enable_stream(rs.stream.color,self.shape[1], self.shape[0], rs.format.bgr8, 30)
 
             # Start streaming
 
@@ -61,7 +65,7 @@ class Intel455(Stream):
         except Exception:
             self.setup_done = False
             print('no intel device was found')
-
+            print(traceback.format_exc())
 
     def get_stream_data(self) -> DataFromAcquisition:
         """ 
@@ -75,15 +79,18 @@ class Intel455(Stream):
             # Wait for a coherent pair of frames: depth and color
             frames = self.pipeline.wait_for_frames()
             depth_frame = frames.get_depth_frame()
-            color_frame = frames.get_color_frame()
+            # color_frame = frames.get_color_frame()
+            color_frame = frames.get_infrared_frame()
             # Convert images to numpy arrays
             depth = np.asanyarray(depth_frame.get_data())
             rgb = np.asanyarray(color_frame.get_data())
+            rgb = cv2.merge((rgb,rgb,rgb))
             self.is_working = True
             data = DataFromAcquisition(rgb,depth)
         except:
             data = None
             self.close()
+            print(traceback.print_exc())
         finally:
             return data
 
