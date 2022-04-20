@@ -33,6 +33,8 @@ class ThreadToSave(QThread):
     def run(self):
         while self.is_running:
             data_to_save = self.get_last_pair()
+            if isinstance(data_to_save, type(None)):
+                continue
             if self.use_datatime_index:
                 index = data_to_save.hour
             else:
@@ -42,6 +44,12 @@ class ThreadToSave(QThread):
                 path_name = f'{self.path}/{key}_{index}{self.FORTMAT}'
                 ret = cv2.imwrite(path_name, image)
             self.last_index.emit(index+self.FORTMAT)
+    
+    def close(self):
+        self.is_running = False
+        self.queue.put(None)
+        print('thread to save images closed')
+        
 
 
 #TEST

@@ -10,9 +10,9 @@ from APP.MAKEDATASET.models.data_objects import DATASET_TYPES, DataToSave, DataF
 from APP.MAKEDATASET.views.draw_tools.draw_over_data_to_show import DrawDataToShow
 from APP.MAKEDATASET.control.check_parallel.through_square import ThroughSquare
 
-
 class MainWindow(QMainWindow):
-    def __init__(self, window_name = '', parent: QWidget=None):
+    def __init__(self, window_name = '', stream_handler: ThreadToStream= None, parent: QWidget=None):
+        self.stream_handler = stream_handler
         super().__init__(parent)
         self.window_name = window_name
         self.init_gui()
@@ -28,7 +28,7 @@ class MainWindow(QMainWindow):
         
     def setup(self):
         # stream config
-        self.stream_handler = ThreadToStream()
+        
         self.stream_handler.add_stream(Intel455())
         self.stream_handler.add_stream(Orbbec())
         self.stream_handler.start()
@@ -94,13 +94,19 @@ class MainWindow(QMainWindow):
         # clear displayed path
         self.panels.panel_choose_path.back_next_buttons.next.setEnabled(False)
         self.panels.panel_choose_path.button_path.set_text('')
+        
+    def closeEvent(self, event) -> None:
+        self.stream_handler.close()
+        self.save_handler.close()
+        return super().closeEvent(event)
     
 
 #TEST
 ################################################################################
 if __name__=='__main__':
     from PyQt5.QtWidgets import QApplication
+    stream_handler = ThreadToStream()
     app = QApplication(sys.argv)
-    window = MainWindow('Make Dataset')
+    window = MainWindow('Make Dataset', stream_handler)
     window.show()
     sys.exit(app.exec_())

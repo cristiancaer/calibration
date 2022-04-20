@@ -29,8 +29,11 @@ class ThreadToStream(QThread):
         for stream in self.possible_streams:
             if stream != self.actual_stream:
                 stream.setup()
+                sleep(0.1)
                 if stream.setup_done:
+                    print(stream.name, id(stream))
                     stream.close()
+                    sleep(0.1)
                     self.available_streams.update({stream.name:stream})
                 else:
                     if stream.name in self.available_streams:
@@ -63,6 +66,7 @@ class ThreadToStream(QThread):
             sleep(0.1)
             if new_stream.setup_done:
                 self.stop = False
+                print('new stream id', stream_name, id(self.actual_stream))
             else:
                 self.stop = True
                 self.message = f'Stream with name ({new_stream.name}) cannot be configured'
@@ -80,11 +84,16 @@ class ThreadToStream(QThread):
                         self.message = f' stream with name ({self.actual_stream.name}) is disconnected'
                         print(self.message)
                         print(self.actual_stream)
-    
+        self.close()
+        
     def close(self):
         self.stop = True
         self.is_running = False
-    
+        sleep(1)
+        if hasattr(self.actual_stream, 'close'):
+            self.actual_stream.close()
+        print('thread acquisition closed')
+        
     def get_available_stream_names(self)-> List[str]:
         self.update_availables()
         return list(self.available_streams.keys())
@@ -95,7 +104,7 @@ class ThreadToStream(QThread):
         if hasattr(self.actual_stream, 'close'):
             self.actual_stream.close()
         self.actual_stream = None    
-POSSIBLE_STREAM: Dict[str, Stream]= {}
+
 
 #TEST
 ################################################################################
@@ -113,6 +122,10 @@ def test_stream( stream_class: Stream):
             zmin, zmax = self.panel_visualization_range.get_range()
             data = DataToShow(data_acquisition=data, zmin=zmin, zmax=zmax)
             self.update_rgbd(data)
+        
+        def closeEvent(self, event) -> None:
+            camara.close()
+            return super().closeEvent(event)
         
         
             

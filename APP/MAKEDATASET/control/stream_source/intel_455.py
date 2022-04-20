@@ -1,5 +1,6 @@
 ## License: Apache 2.0. See LICENSE file in root directory.
 ## Copyright(c) 2015-2017 Intel Corporation. All Rights Reserved.
+from time import sleep
 from typing import Tuple
 import numpy as np
 import pyrealsense2 as rs
@@ -56,12 +57,14 @@ class Intel455(Stream):
             
             config.enable_stream(rs.stream.depth, self.shape[1], self.shape[0], rs.format.z16, 30)
             config.enable_stream(rs.stream.infrared, 1, self.shape[1], self.shape[0], rs.format.y8, 30)
-            # config.enable_stream(rs.stream.color,self.shape[1], self.shape[0], rs.format.bgr8, 30)
+            config.enable_stream(rs.stream.color,self.shape[1], self.shape[0], rs.format.bgr8, 30)
 
             # Start streaming
 
             self.pipeline.start(config)
             self.setup_done = True
+            self.is_working = True
+            
         except Exception:
             self.setup_done = False
             print('no intel device was found')
@@ -76,17 +79,18 @@ class Intel455(Stream):
         """
         try:
             data = None
-            # Wait for a coherent pair of frames: depth and color
-            frames = self.pipeline.wait_for_frames()
-            depth_frame = frames.get_depth_frame()
-            # color_frame = frames.get_color_frame()
-            color_frame = frames.get_infrared_frame()
-            # Convert images to numpy arrays
-            depth = np.asanyarray(depth_frame.get_data())
-            rgb = np.asanyarray(color_frame.get_data())
-            rgb = cv2.merge((rgb,rgb,rgb))
-            self.is_working = True
-            data = DataFromAcquisition(rgb,depth)
+            if self.is_working:
+                # Wait for a coherent pair of frames: depth and color
+                frames = self.pipeline.wait_for_frames()
+                depth_frame = frames.get_depth_frame()
+                color_frame = frames.get_color_frame()
+                color_frame = frames.get_infrared_frame()
+                # Convert images to numpy arrays
+                depth = np.asanyarray(depth_frame.get_data())
+                rgb = np.asanyarray(color_frame.get_data())
+                rgb = cv2.merge((rgb,rgb,rgb))
+                self.is_working = True
+                data = DataFromAcquisition(rgb,depth)
         except:
             data = None
             self.close()
@@ -98,11 +102,15 @@ class Intel455(Stream):
         """ close stream and drivers"""
         if self.setup_done:
             try:
-                self.pipeline.stop()
                 self.setup_done = False
                 self.is_working = False
+                sleep(0.1)
+                self.pipeline.stop()
+                del self.pipeline
+                print(f'{self.name}  closed')
             except Exception:
                 print('devise disconnected')
+    
 
 #TEST
 ################################################################################
