@@ -1,14 +1,18 @@
+from configparser import Interpolation
 from PyQt5.QtWidgets import QMainWindow, QWidget
 import sys
+from time import time
+import cv2
 sys.path.append('./')
 from APP.MAKEDATASET.views.integration import Integration
 from APP.MAKEDATASET.control.stream_source.intel_455 import Intel455
 from APP.MAKEDATASET.control.stream_source.orbbec import Orbbec
 from APP.MAKEDATASET.control.stream_source.thread_stream import ThreadToStream
 from APP.MAKEDATASET.control.save_pair_images import ThreadToSave
-from APP.MAKEDATASET.models.data_objects import DATASET_TYPES, DataToSave, DataFromAcquisition, DatasetTypes
+from APP.MAKEDATASET.models.data_objects import DATASET_TYPES, DataToSave, DataFromAcquisition, DataToShow, DatasetTypes
 from APP.MAKEDATASET.views.draw_tools.draw_over_data_to_show import DrawDataToShow
 from APP.MAKEDATASET.control.check_parallel.through_square import ThroughSquare
+
 
 class MainWindow(QMainWindow):
     def __init__(self, window_name = '', stream_handler: ThreadToStream= None, parent: QWidget=None):
@@ -71,6 +75,17 @@ class MainWindow(QMainWindow):
         zmin, zmax = self.panels.panel_to_save.panel_rgb_d.panel_visualization_range.get_range() 
         data_to_show = DrawDataToShow(data, zmin, zmax)
         if dataset_type == DATASET_TYPES.AREA_CALIBRATION or dataset_type == DATASET_TYPES.Z_CALIBRATION:
+            # if self.panels.panel_select_camera.get_selected() == Intel455.name:
+            #     percent = 0.6
+            #     t = time()
+            #     data_to_show.WIDTH = int(data_to_show.WIDTH * percent)
+            #     data_to_show.HEIGHT = int(data_to_show.HEIGHT* percent)
+            #     dim = (data_to_show.WIDTH, data_to_show.HEIGHT)
+            #     interpol =  cv2.INTER_CUBIC
+            #     data_to_show.rgb = cv2.resize(data_to_show.rgb, dim, interpolation= interpol)
+            #     data_to_show.depth = cv2.resize(data_to_show.depth, dim, interpolation= interpol)
+            #     print(time()-t)
+            # print(data_to_show.rgb.shape)    
             y_status, x_status = self.check_parallel.check(data.depth)
             data_to_show.draw_parallel_information(y_status, x_status)
             data_to_show.draw_rectangle(self.check_parallel.top_point[::-1], self.check_parallel.bottom_point[::-1])# original are in array index reference [row, column]. draw has [x,y] index reference

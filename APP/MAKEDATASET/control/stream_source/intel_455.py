@@ -54,6 +54,8 @@ class Intel455(Stream):
             depth_sensor.set_option(rs.option.enable_auto_exposure,1)
             depth_sensor.set_option(rs.option.depth_units,0.0001)
             depth_sensor.set_option(rs.option.emitter_enabled, 1)
+            depth_sensor.set_option(rs.option.laser_power, 350)
+            
             
             config.enable_stream(rs.stream.depth, self.shape[1], self.shape[0], rs.format.z16, 30)
             config.enable_stream(rs.stream.infrared, 1, self.shape[1], self.shape[0], rs.format.y8, 30)
