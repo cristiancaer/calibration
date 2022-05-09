@@ -17,7 +17,8 @@ class InterfaceForImage():
         self.init_gui()
 
     def init_gui(self):
-        self.setScaledContents(True)
+        if hasattr(self,'setScaledContents'):
+            self.setScaledContents(True)
 
     def update_image(self, frame: np.ndarray) -> None:
         """         
