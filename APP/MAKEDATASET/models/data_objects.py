@@ -1,10 +1,10 @@
-from typing import Dict, List, Any
+from APP.MAKEDATASET.views import depth2color
+from APP.MAKEDATASET.models import HOUR_FORMAT, RGB_PREFIX, DEPTH_PREFIX, ZMAX, ZMIN
+from typing import Dict, List, Any, Tuple
 import numpy as np
 from datetime import datetime
 import sys
 sys.path.append('./')
-from APP.MAKEDATASET.views import depth2color
-from APP.MAKEDATASET.models import HOUR_FORMAT, RGB_PREFIX, DEPTH_PREFIX, ZMAX, ZMIN
 
 
 class DataFromAcquisition:
@@ -30,8 +30,9 @@ class DataToSave:
         if isinstance(img, np.ndarray):
             self.data.update({name: img})
 
+
 class InclinationStatus:
-    def __init__(self,threshold: float, inclination_value: float)->None:
+    def __init__(self, threshold: float, inclination_value: float) -> None:
         """
         used in parallel checking
 
@@ -39,30 +40,32 @@ class InclinationStatus:
             thread (float): if |inclination_value|< Thread, we'll consider that the surface is parallel to the camera
             inclination_value (float): variation in the axis
         """
-        self.is_parallel = np.absolute(inclination_value)< threshold
+        self.is_parallel = np.absolute(inclination_value) < threshold
         self.value = inclination_value
         self.is_positive = inclination_value > 0
 
+
 class DataToShow:
-    def __init__(self, data_acquisition: DataFromAcquisition, zmin= ZMIN, zmax= ZMAX):
+    def __init__(self, data_acquisition: DataFromAcquisition, zmin=ZMIN, zmax=ZMAX):
         """_summary_
 
         Args:
             data_acquisition (DataFromAcquisition): rgb-d original from stream
-        
-        """  
+
+        """
         self.rgb = data_acquisition.rgb
-        self.depth = depth2color(data_acquisition.depth, zmin=zmin, zmax= zmax)
+        self.depth = depth2color(data_acquisition.depth, zmin=zmin, zmax=zmax)
         self.HEIGHT, self.WIDTH = self.rgb.shape[:2]
-        
-    
+
+
 class DatasetTypes:
     "titles of dataset types"
     Z_CALIBRATION = 'Z Calibration'
     UV_CALIBRATION = 'UV Calibration'
     AREA_CALIBRATION = 'Area Calibration'
-    MILL= 'At Mill'
-    def as_list(self)->List[str]:
+    MILL = 'At Mill'
+
+    def as_list(self) -> List[str]:
         """
         Returns:
             List[str]: All dataset types in a list
@@ -71,22 +74,13 @@ class DatasetTypes:
                 self.UV_CALIBRATION,
                 self.AREA_CALIBRATION,
                 self.MILL
-               ]          
+                ]
+
+
 DATASET_TYPES = DatasetTypes()
 
-# @dispatch(list)
-# def int_array(number_list:List[Any])->np.ndarray:
-#     """make an array of int numbers 
 
-#     Args:
-#         number_list (Any[int,float]): list of int or float numbers
-
-#     Returns:
-#         np.ndarray: array of int numbers and shape = -1
-#     """
-#     return np.array(number_list, dtype=np.uint8)
-
-def int_array(*args: Any)-> np.ndarray:
+def int_array(*args: Any) -> np.ndarray:
     """make an array of int numbers 
 
     Args:
@@ -95,8 +89,8 @@ def int_array(*args: Any)-> np.ndarray:
     Returns:
         np.ndarray: array of int numbers and shape = -1
     """
-    buffer: List[Any[int,float]] = []
+    buffer: List[Any[int, float]] = []
     for value in args:
-        if not isinstance(value,list):
+        if not isinstance(value, list):
             buffer.append(value)
-    return np.array(buffer,dtype=int)
+    return np.array(buffer, dtype=int)

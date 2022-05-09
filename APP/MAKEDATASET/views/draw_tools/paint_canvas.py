@@ -1,113 +1,51 @@
-from PyQt5.QtWidgets import QApplication, QDialog, QGridLayout, QPushButton, QGraphicsScene, QGraphicsView
-from PyQt5.QtCore import QPointF, QRectF, pyqtSlot, Qt
-from PyQt5.QtGui import QImage, QPixmap
-import numpy as np
+from multiprocessing.connection import wait
+import queue
+from typing import List
+from PyQt5.QtWidgets import QWidget,QApplication, QDialog, QGridLayout, QPushButton, QGraphicsScene, QGraphicsView
+from PyQt5.QtCore import QPointF, QRectF, pyqtSlot, Qt, pyqtSignal
+from PyQt5.QtGui import QMouseEvent
 import cv2
+import numpy as np
+from queue import Queue
 import sys
 sys.path.append('./')
+from APP.MAKEDATASET.views.basic.interface_to_image import InterfaceForImage
+from APP.MAKEDATASET.models.draw_objects import Line, PointsStore
 
-
-class ImShowWidget(QGraphicsView):
-    def __init__(self):
-        QGraphicsView.__init__(self)
+class CanvasImgShow(QGraphicsView, InterfaceForImage):
+    last_store_full = pyqtSignal()
+    def __init__(self, parent: QWidget= None):
+        QGraphicsView.__init__(self,parent)
         self.setSceneRect(QRectF())
         self.scene = QGraphicsScene()
         self.setScene(self.scene)
-        self.img = np.zeros((480, 640, 3), dtype=np.uint8)
-        self.shape = None  # shape of the image to show
-        self.image_format = QImage.Format_RGB888
-        self.init_gui()
-     # limpiar canvas
+        InterfaceForImage.__init__(self)
+        self.clear()
+        self.points_buffer: List[PointsStore] = []
+    
+    def update_image(self, frame: np.ndarray) -> None:
+        pixmap = self.frame_to_pixmap(frame)
+        self.scene.addPixmap(pixmap)
+        self.setScene(self.scene)
 
     def clear(self):
-        self.img = np.zeros((480, 640, 3), dtype=np.uint8)
+        self.black_img = np.zeros((480, 640, 3), dtype=np.uint8)
         self.scene.clear()
-        self.update_image(self.img)
-
-    def __init__(self, parent=None):
-        super().__init__(parent=parent)
-
-
-    def init_gui(self):
-        self.setScaledContents(True)
-
-    def update_image(self, frame: np.ndarray) -> None:
-        """         
-        Args:
-            frame (np.ndarray): an image, it must be a numpy array 3 chanel
-        """
-
-        pixmap = self.frame_to_pixmap(frame)
-        self.setPixmap(pixmap.scaled(self.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation))
-        self.show()
-
-    def frame_to_pixmap(self, frame: np.ndarray) -> QPixmap:
-        """ a QLabel need a QPimax to show an image. this function allow to convert a numpy-array image to a pixmap. 
-
-        Args:
-            frame (np.ndarray): numpy array 3 chanel image
-
-        Returns:
-            QPixmap: object to show a image into a QLabel
-        """
-        # the most part of time the image keep the shape
-        if self.shape != frame.shape:
-            self.shape = frame.shape
-            self.height_, self.width_, self.chanels = frame.shape
-            self.bytes_per_line = self.chanels*self.width_
-        image = QImage(frame.data, self.width_, self.height_, self.bytes_per_line, self.image_format)
-        pixmap = QPixmap(QPixmap.fromImage(image))
-        return pixmap
-
-    def update_img_from_path(self, path_name: str):
-        """
-        Args:
-            path (str): path and name to the file
-        """
-        img = cv2.imread(path_name)
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        if hasattr(img, 'shape'):
-            self.update_image(img)
-        else:
-            print('image not found')
-
-class canvas(ImShowWidget):
-    def __init__(self):
-        super().__init__()
-        self.listLines = []
-        self.listPol = []
-        self.drawing = False
-        self.listBuffer = None
-
-    def idle(self):
-        return None
-
-    def makeLine(self) -> None:
-        self.drawing = True
-        self.listLines.append(Line())
-        self.listBuffer = self.listLines
-
-    def makePoly(self, nsegments: int) -> None:
-        self.drawing = True
-        self.listPol.append(Polyn(nsegments))
-        self.listBuffer = self.listPol
+        self.update_image(self.black_img)
 
     def mousePressEvent(self, event):
-        e = QPointF(self.mapToScene(event.pos()))
-        self.getStroke(e)
+        mouse_point = QPointF(self.mapToScene(event.pos()))
+        self.store_point(mouse_point)
 
-    def getStroke(self, e):
-
-        if self.drawing:
-            if not self.listBuffer[-1].isComplete:
-                self.listBuffer[-1].addPt([e.x(), e.y()])
-                if self.listBuffer[-1].isComplete:
-                    self.listBuffer = None
-                    self.drawing = False
-                    for l in self.listLines:
-                        print(l)
-                    for p in self.listPol:
-                        print(p)
+    def store_point(self, mouse_point:QPointF):
+        if self.points_buffer:
+            self.points_buffer[0].add_point(mouse_point.x(), mouse_point.y())
+            if self.points_buffer[0].is_full:
+                self.points_buffer.pop(0)
+                self.last_store_full.emit()
+                
+    def add_element_to_store(self, new_store: PointsStore) -> None:
+        self.points_buffer.append(new_store) 
 
 
 class Dialogo(QDialog):
@@ -116,13 +54,14 @@ class Dialogo(QDialog):
         self.resize(500, 500)
         self.layout = QGridLayout()
         self.setLayout(self.layout)
-        self.paint = canvas()
+        self.paint = CanvasImgShow(self)
 
-        self.btnDrawLine = QPushButton("Dibujar V")
+        self.btn_draw_line = QPushButton("draw line")
 
         self.btn_clear = QPushButton("Clear")
+        self.line = Line()
 
-        self.layout.addWidget(self.btnDrawLine)
+        self.layout.addWidget(self.btn_draw_line)
 
         self.layout.addWidget(self.btn_clear)
         self.layout.addWidget(self.paint)
@@ -130,17 +69,23 @@ class Dialogo(QDialog):
         self.btnDefault = "background-color: grey; border: 0; padding: 10px"
         self.btnActive = "background-color: orange; border: 0; padding: 10px"
 
-        self.btnDrawLine.setStyleSheet(self.btnDefault)
-        self.btn_clear.setStyleSheet(self.btnDefault)
-        self.btnDrawLine.clicked.connect(self.paint.makeLine)
 
-        self.btn_clear.clicked.connect(self.isClear)
-
-    def isClear(self):
+        self.btn_clear.clicked.connect(self.f_clear)
+        self.btn_draw_line.clicked.connect(self.f_add_line)
+        self.paint.last_store_full.connect(self.f_draw_line)
+        
+    def f_clear(self):
         self.paint.clear()
-        self.btn_clear.setStyleSheet(self.btnActive)
-
-        self.btn_clear.setStyleSheet(self.btnDefault)
+        self.line.clear()
+    
+    def f_add_line(self):
+        if not self.line.is_full:
+            self.paint.add_element_to_store(self.line)
+            
+    def f_draw_line(self) -> None:
+        if self.line.is_full:
+            line_img = cv2.line(self.paint.black_img, tuple(self.line.points[0]), tuple(self.line.points[1]),(255, 255, 255), 10)
+            self.paint.update_image(line_img)
 
 
 if __name__ == "__main__":
