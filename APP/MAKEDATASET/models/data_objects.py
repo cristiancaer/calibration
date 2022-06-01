@@ -53,8 +53,8 @@ class DataToShow:
             data_acquisition (DataFromAcquisition): rgb-d original from stream
 
         """
-        self.rgb = data_acquisition.rgb
-        self.depth = depth2color(data_acquisition.depth, zmin=zmin, zmax=zmax)
+        self.rgb = data_acquisition.rgb.copy()
+        self.depth = depth2color(data_acquisition.depth.copy(), zmin=zmin, zmax=zmax)
         self.HEIGHT, self.WIDTH = self.rgb.shape[:2]
 
 
