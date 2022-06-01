@@ -52,7 +52,7 @@ class MainWindow(QMainWindow):
         self.save_handler.last_index.connect(self.panels.panel_to_save.line_edit_last_saved.update_text)
         
         # check config
-        self.check_parallel = ThroughSquare(top_point=[100,100], bottom_point=[-100,-100], threshold=10, line_width= 15)
+        self.check_parallel = ThroughSquare(top_point=[100,170], bottom_point=[-100,-100], threshold=10, line_width= 15)
         
     def update_save_info(self):
         path = self.panels.panel_choose_path.path

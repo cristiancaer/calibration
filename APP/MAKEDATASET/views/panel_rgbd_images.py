@@ -26,7 +26,7 @@ class PanelMinMaxEdit( QWidget):
         self.spin_box_max = CustomSpinBox('Max')
         self.spin_box_max.set_value(ZMAX)
         layout.addWidget(self.spin_box_max)
-        self.setMaximumHeight(100)
+        self.setMaximumHeight(120)
         main_layout.addWidget(self.group_box)
         
     def get_range(self)-> Tuple[int]:
