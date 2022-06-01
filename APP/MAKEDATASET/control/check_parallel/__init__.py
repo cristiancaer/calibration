@@ -26,7 +26,7 @@ class VerticalSegments:
         self.upper_index = self._get_segment_index(self.init_point, self.mind_point)  # list of all points of the upper segment
         self.lower_index = self._get_segment_index(self.mind_point, self.end_point)  # list of all points of the lower segment
 
-    def _get_segment_index(self, inti_point: List[int, int], end_point: List[int, int]) -> np.ndarray:
+    def _get_segment_index(self, inti_point: List[int], end_point: List[int]) -> np.ndarray:
         black_img = np.zeros((self.img_shape[:2]))
         segment_mask = cv2.line(black_img, inti_point, end_point, (1, 0, 0), self.line_thickness)
         return np.where(segment_mask == 1)
