@@ -56,6 +56,9 @@ class Intel455(Stream):
             depth_sensor.set_option(rs.option.emitter_enabled, 1)
             depth_sensor.set_option(rs.option.laser_power, 350)
             
+            #config to align rgb-d
+            align_to = rs.stream.depth
+            self.aligner = rs.align(align_to)
             
             config.enable_stream(rs.stream.depth, self.shape[1], self.shape[0], rs.format.z16, 30)
             config.enable_stream(rs.stream.infrared, 1, self.shape[1], self.shape[0], rs.format.y8, 30)
@@ -64,6 +67,7 @@ class Intel455(Stream):
             # Start streaming
 
             self.pipeline.start(config)
+            self.config = config
             self.setup_done = True
             self.is_working = True
             
@@ -84,13 +88,14 @@ class Intel455(Stream):
             if self.is_working:
                 # Wait for a coherent pair of frames: depth and color
                 frames = self.pipeline.wait_for_frames()
-                depth_frame = frames.get_depth_frame()
-                color_frame = frames.get_color_frame()
-                color_frame = frames.get_infrared_frame()
+                aligned_frames = self.aligner.process(frames)
+                depth_frame = aligned_frames.get_depth_frame()
+                color_frame = aligned_frames.get_color_frame()
+                # color_frame = frames.get_infrared_frame()
                 # Convert images to numpy arrays
                 depth = np.asanyarray(depth_frame.get_data())
                 rgb = np.asanyarray(color_frame.get_data())
-                rgb = cv2.merge((rgb,rgb,rgb))
+                # rgb = cv2.merge((rgb,rgb,rgb))
                 self.is_working = True
                 data = DataFromAcquisition(rgb,depth)
         except:
@@ -108,6 +113,7 @@ class Intel455(Stream):
                 self.is_working = False
                 sleep(0.1)
                 self.pipeline.stop()
+                self.config.disable_all_streams()
                 del self.pipeline
                 print(f'{self.name}  closed')
             except Exception:
