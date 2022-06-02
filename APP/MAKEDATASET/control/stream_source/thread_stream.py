@@ -45,7 +45,7 @@ class ThreadToStream(QThread):
     def set_stream(self, stream_name: str= None):
         """ 
         Args:
-            new_stream (Stream, optional): Stream Object where get the rgb-dept  pair image, if not args is given, it try to setup the last Stream given. Defaults to None.
+            new_stream (Stream, optional): Stream Object where get the rgb-dept  pair image, if not args are given, it try to setup the last Stream given. Defaults to None.
         """
         
         self.stop = True

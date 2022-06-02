@@ -75,9 +75,9 @@ class PanelRGBDImage(QWidget):
         """
         put a dark (zeros) pair image in the panel rgb-d
         """
-        img = np.zeros((400,400,3), dtype= np.uint8)
-        self.panel_depth.update_image(img)
-        self.panel_rgb.update_image(img)
+        
+        self.panel_depth.canvas.clear_canvas()
+        self.panel_rgb.canvas.clear_canvas()
         
         
 #TEST
