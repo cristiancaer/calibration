@@ -39,11 +39,11 @@ class InterfaceForImage():
         # the most part of time the image keep the shape
         if self.shape != frame.shape:
             self.shape = frame.shape
-            self.height_, self.width_, self.chanels = frame.shape
-            self.bytes_per_line = self.chanels*self.width_
+            self.height_img, self.width_img, self.channels = frame.shape
+            self.bytes_per_line = self.channels*self.width_img
         if frame.dtype == np.uint16:
             frame = depth2color(frame)
-        image = QImage(frame.data, self.width_, self.height_,
+        image = QImage(frame.data, self.width_img, self.height_img,
                        self.bytes_per_line, self.image_format)
         pixmap = QPixmap(QPixmap.fromImage(image))
         return pixmap
@@ -58,3 +58,10 @@ class InterfaceForImage():
             self.update_image(img)
         else:
             print('image not found')
+    
+    def clear_canvas(self):
+        if self.shape is None:
+            self.black_img = np.zeros((480, 640, 3), dtype=np.uint8)
+        else:
+            self.black_img = np.zeros(self.shape, dtype=np.uint8)
+        self.update_image(self.black_img)

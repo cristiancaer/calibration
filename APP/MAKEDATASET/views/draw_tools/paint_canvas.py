@@ -1,51 +1,42 @@
-from multiprocessing.connection import wait
-import queue
 from typing import List
-from PyQt5.QtWidgets import QWidget,QApplication, QDialog, QGridLayout, QPushButton, QGraphicsScene, QGraphicsView
-from PyQt5.QtCore import QPointF, QRectF, pyqtSlot, Qt, pyqtSignal
+from PyQt5.QtWidgets import QWidget,QApplication, QDialog, QGridLayout, QPushButton
+from PyQt5.QtCore import QPointF, pyqtSlot, pyqtSignal, QPoint
 from PyQt5.QtGui import QMouseEvent
 import cv2
 import numpy as np
-from queue import Queue
 import sys
 sys.path.append('./')
-from APP.MAKEDATASET.views.basic.interface_to_image import InterfaceForImage
+from APP.MAKEDATASET.views.basic.label_for_image import LabelForImage
 from APP.MAKEDATASET.models.draw_objects import Line, PointsStore
 
-class CanvasImgShow(QGraphicsView, InterfaceForImage):
+
+class CanvasImgShow(LabelForImage):
     last_store_full = pyqtSignal()
-    def __init__(self, parent: QWidget= None):
-        QGraphicsView.__init__(self,parent)
-        self.setSceneRect(QRectF())
-        self.scene = QGraphicsScene()
-        self.setScene(self.scene)
-        InterfaceForImage.__init__(self)
-        self.clear()
-        self.points_buffer: List[PointsStore] = []
     
-    def update_image(self, frame: np.ndarray) -> None:
-        pixmap = self.frame_to_pixmap(frame)
-        self.scene.addPixmap(pixmap)
-        self.setScene(self.scene)
+    def __init__(self, parent = None)->None:
+        super().__init__(parent)
+        self.points_buffer: List[PointsStore] = []
 
-    def clear(self):
-        self.black_img = np.zeros((480, 640, 3), dtype=np.uint8)
-        self.scene.clear()
-        self.update_image(self.black_img)
-
-    def mousePressEvent(self, event):
-        mouse_point = QPointF(self.mapToScene(event.pos()))
+    def mousePressEvent(self, event: QMouseEvent):
+        mouse_point = self.map_to_img(event.pos())
         self.store_point(mouse_point)
 
     def store_point(self, mouse_point:QPointF):
-        if self.points_buffer:
-            self.points_buffer[0].add_point(mouse_point.x(), mouse_point.y())
-            if self.points_buffer[0].is_full:
-                self.points_buffer.pop(0)
-                self.last_store_full.emit()
+        if not self.points_buffer:
+            return
+        self.points_buffer[0].add_point(mouse_point.x(), mouse_point.y())
+        if self.points_buffer[0].is_full:
+            self.points_buffer.pop(0)
+            self.last_store_full.emit()
                 
     def add_element_to_store(self, new_store: PointsStore) -> None:
         self.points_buffer.append(new_store) 
+    
+    def map_to_img(self, point:QPoint) -> QPointF:
+        """ all the images will be scaled to the canvas, then any point of canvas has different coords regard to the original image"""
+        y_ratio = self.height_img/self.height()
+        x_ratio = self.width_img/self.width()
+        return QPointF(point.x()*x_ratio, point.y()*y_ratio)
 
 
 class Dialogo(QDialog):
@@ -55,7 +46,8 @@ class Dialogo(QDialog):
         self.layout = QGridLayout()
         self.setLayout(self.layout)
         self.paint = CanvasImgShow(self)
-
+        self.paint.update_image(np.zeros((640,480,3), dtype= np.uint8))
+        self.paint.clear_canvas()
         self.btn_draw_line = QPushButton("draw line")
 
         self.btn_clear = QPushButton("Clear")
@@ -75,7 +67,7 @@ class Dialogo(QDialog):
         self.paint.last_store_full.connect(self.f_draw_line)
         
     def f_clear(self):
-        self.paint.clear()
+        self.paint.clear_canvas()
         self.line.clear()
     
     def f_add_line(self):

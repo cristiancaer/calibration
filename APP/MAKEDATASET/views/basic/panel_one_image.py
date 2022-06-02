@@ -1,18 +1,19 @@
 import cv2
 import numpy as np
 import sys
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QApplication, QSizePolicy
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QApplication, QSizePolicy
 sys.path.append('./')
 from APP.MAKEDATASET.views.basic.label_for_image import LabelForImage
 from APP.MAKEDATASET.views.basic import CustomLabel
 from APP.MAKEDATASET.models import RGB_PREFIX, TEST_IMG
+from APP.MAKEDATASET.views.draw_tools.paint_canvas import CanvasImgShow
 
 
 class PanelImage(QWidget):
-    def __init__(self, title: str = None):
+    def __init__(self, title: str = None, allow_draw = False):
         super().__init__()
         self.title = title  # title of image
+        self.allow_draw = allow_draw
         self.init_gui()
 
     def init_gui(self):
@@ -27,8 +28,11 @@ class PanelImage(QWidget):
         self.label_image_title = CustomLabel(self.title, center=True)
         self.label_image_title.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
         # canvas
-        self.canvas = LabelForImage()
-        self.canvas.setScaledContents(True)
+        if self.allow_draw:
+            self.canvas = CanvasImgShow(self)
+        else:
+            self.canvas = LabelForImage()
+            self.canvas.setScaledContents(True)
         self.canvas.setMinimumSize(1, 1)
         layout.addWidget(self.label_image_title)
         layout.addWidget(self.canvas)
@@ -47,7 +51,7 @@ class PanelImage(QWidget):
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     img = cv2.imread(TEST_IMG)
-    window = PanelImage(RGB_PREFIX)
+    window = PanelImage(RGB_PREFIX, allow_draw=True)
     window.canvas.update_image(img)
     window.show()
     sys.exit(app.exec_())
