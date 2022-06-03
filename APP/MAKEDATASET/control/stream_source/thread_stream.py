@@ -1,5 +1,4 @@
 from typing import Dict, List
-from unicodedata import name
 from PyQt5.QtCore import QThread, pyqtSignal
 from time import sleep
 import sys

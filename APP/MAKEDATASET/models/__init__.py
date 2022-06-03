@@ -8,3 +8,4 @@ IMAGE_SHAPE = (480, 640)
 ################################################################################
 CC_ICON_PATH='APP/MAKEDATASET/views/basic/icons/cc.jpg'
 TEST_IMG=CC_ICON_PATH
+TEST_PATH = './test'

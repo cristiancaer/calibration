@@ -5,3 +5,4 @@ __pycache__/*
 *.rst
 test_folder/*
 images/*
+test/*
