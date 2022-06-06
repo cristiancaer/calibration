@@ -1,5 +1,4 @@
 from typing import Tuple
-import numpy as np
 from PyQt5.QtWidgets import QWidget,QGridLayout, QApplication, QGroupBox, QHBoxLayout
 import sys
 import cv2
@@ -41,18 +40,20 @@ class PanelMinMaxEdit( QWidget):
 class PanelRGBDImage(QWidget):
     name = 'show_rgb_d'
     
-    def __init__(self, parent: QWidget= None):
+    def __init__(self, parent: QWidget= None, draw_rgb: bool= False, draw_depth: bool= False):
         """Panel to show an rgb-d image pair
 
         Args:
             parent (QWidget, optional): widget parent. Defaults to None.
         """
+        self.draw_rgb = draw_rgb
+        self.draw_depth = draw_depth
         super().__init__(parent=parent)
         self.init_gui()
         
         
     def init_gui(self):
-        self.button_reconnect_stream = BasicButton('Reconnect Camara')
+        self.button_reconnect_stream = BasicButton('Reconnect Camera')
         self.panel_visualization_range = PanelMinMaxEdit()
         self.panel_rgb = PanelImage('RGB', allow_draw=self.draw_rgb)
         self.panel_depth = PanelImage('Depth', allow_draw=self.draw_depth)
