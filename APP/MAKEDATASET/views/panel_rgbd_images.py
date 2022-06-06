@@ -54,13 +54,13 @@ class PanelRGBDImage(QWidget):
     def init_gui(self):
         self.button_reconnect_stream = BasicButton('Reconnect Camara')
         self.panel_visualization_range = PanelMinMaxEdit()
-        self.panel_rgb = PanelImage('RGB')
-        self.panel_depth = PanelImage('Depth')
-        layout = QGridLayout(self)
-        layout.addWidget(self.button_reconnect_stream, 0, 0 , 1, 2)
-        layout.addWidget(self.panel_visualization_range, 1, 0, 1, 2)
-        layout.addWidget(self.panel_rgb, 2, 0, 2, 1)
-        layout.addWidget(self.panel_depth, 2, 1, 2, 1)
+        self.panel_rgb = PanelImage('RGB', allow_draw=self.draw_rgb)
+        self.panel_depth = PanelImage('Depth', allow_draw=self.draw_depth)
+        self.main_layout = QGridLayout(self)
+        self.main_layout.addWidget(self.button_reconnect_stream, 0, 0 , 1, 2)
+        self.main_layout.addWidget(self.panel_visualization_range, 1, 0, 1, 2)
+        self.main_layout.addWidget(self.panel_rgb, 2, 0, 2, 1)
+        self.main_layout.addWidget(self.panel_depth, 2, 1, 2, 1)
         
     def update_rgbd(self, data_to_show: DataToShow):
         """update rgb-d image pair
