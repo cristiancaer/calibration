@@ -3,12 +3,17 @@ import sys
 sys.path.append('./')
 from APP.MAKEDATASET.views.basic import CustomLabel,LabelFont
 
+
 class BasicButton(QPushButton):
+    IS_PRESSED_COLOR = 'green'
+    DEFAULT_COLOR = 'lightgray'
     def __init__(self, name: str, icon_atr: str = None):
         super().__init__()
         self.name = name
         self.icon_atr = icon_atr
+        self.status = False
         self.init_gui()
+        
 
     def init_gui(self):
         self.setText(self.name)
@@ -16,7 +21,20 @@ class BasicButton(QPushButton):
             pixmap = getattr(QStyle, self.icon_atr)
             icon = self.style().standardIcon(pixmap)
             self.setIcon(icon)
+        self.setStyleSheet("QPushButton::pressed"
+                            "{"
+                            "background-color : green;"
+                            "}")
         self.setFont(LabelFont())
+        
+    def set_pressed(self, flat = False):
+        self.status = flat
+            
+        if self.status:
+            color = self.IS_PRESSED_COLOR
+        else: 
+            color = self.DEFAULT_COLOR
+        self.setStyleSheet("background-color : {}".format(color))
 
 
 class NextButton(BasicButton):
@@ -64,7 +82,7 @@ class ButtonGetDir(ButtonAndLabel):
 if __name__ == '__main__':
     import sys
     app = QApplication(sys.argv)
-    window = BackNextButtons()
+    window = BasicButton('test')
     
     window.show()
     sys.exit(app.exec_())

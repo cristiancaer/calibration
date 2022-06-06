@@ -30,7 +30,7 @@ class PointsStore:
         self.is_full = self.last_index == self.points_number
 
 
-class Line(PointsStore):
+class LineStore(PointsStore):
     def __init__(self) -> None:
         super().__init__(2)
 
@@ -41,6 +41,7 @@ class Line(PointsStore):
             float: angle in degrees
         """
         # point = [x,y]
+        if self.is_full:
             delta = self.points[1] -self.points[0]
             delta = delta.astype(float)
             if delta[0] == 0:

@@ -1,4 +1,3 @@
-from curses import window
 from typing import List
 from PyQt5.QtWidgets import QWidget, QApplication
 import sys

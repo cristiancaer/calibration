@@ -6,7 +6,7 @@ sys.path.append('./')
 from APP.MAKEDATASET.models.draw_objects import LineStore
 
 class VerticalSegments:
-    def __init__(self, line: Line, img_shape: Tuple[int, int], line_thickness: int = 10):
+    def __init__(self, line: LineStore, img_shape: Tuple[int, int], line_thickness: int = 10):
         """convert a vertical line in two segments ( upper and lower) separated by its mid-point
 
 
