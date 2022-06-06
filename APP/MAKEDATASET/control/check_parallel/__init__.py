@@ -3,7 +3,7 @@ import sys
 import cv2
 import numpy as np
 sys.path.append('./')
-from APP.MAKEDATASET.models.draw_objects import Line
+from APP.MAKEDATASET.models.draw_objects import LineStore
 
 class VerticalSegments:
     def __init__(self, line: Line, img_shape: Tuple[int, int], line_thickness: int = 10):

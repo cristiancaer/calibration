@@ -41,10 +41,10 @@ class Line(PointsStore):
             float: angle in degrees
         """
         # point = [x,y]
-        delta = self.points[1] -self.points[0]
-        delta = delta.astype(float)
-        if delta[0] == 0:
-            delta[0] = 1E-9
-        
-        angle = np.arctan(delta[1]/delta[0])# radians
-        return angle*180/np.pi # degrees
+            delta = self.points[1] -self.points[0]
+            delta = delta.astype(float)
+            if delta[0] == 0:
+                delta[0] = 1E-9
+            
+            angle = np.arctan(delta[1]/delta[0])# radians
+            return angle*180/np.pi # degrees
