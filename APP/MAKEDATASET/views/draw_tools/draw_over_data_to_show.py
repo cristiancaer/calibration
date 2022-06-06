@@ -20,6 +20,9 @@ class DrawDataToShow(DataToShow):
     FONT_SCALE = 0.7
     FONT_LINE = cv2.LINE_AA
     FONT_THICKNESS = 2
+    VERTICAL_LINES_COLOR = (255, 255, 255)
+    POLYGON_LINE_COLOR = VERTICAL_LINES_COLOR
+    
     def get_mid_point(self)-> np.ndarray:
         """mid of the images
 
@@ -114,6 +117,32 @@ class DrawDataToShow(DataToShow):
         origin = (40,40)
         self.add_text(self.rgb, text, origin)
     
+    def draw_line_over(self, points: np.ndarray, in_rgb = False, in_depth = False) -> None:
+        if in_rgb:
+            self._draw_line(self.rgb, points)
+        
+        if in_depth:
+            self._draw_line(self.depth, points)
+
+    
+    def _draw_line(self, img:np.ndarray, points: np.ndarray) -> None:
+        cv2.line(img, points[0], points[1], self.VERTICAL_LINES_COLOR, self.THICKNESS)
+    
+    def draw_polygon_over(self, points: np.ndarray, in_rgb= False, in_depth= False):
+        if in_rgb:
+            self._draw_polygon(self.rgb, points)
+        
+        if in_depth:
+            self._draw_polygon(self.depth, points)
+            
+    def _draw_polygon(self, img:np.ndarray, points: np.ndarray) -> None:
+        """
+        Args: 
+            points (np.ndarray): shape = (n,2) where n is the number of points in the polygon, each points must have [x,y] coords
+        """
+        pts = [points.reshape((-1,1,2))]# the cv2 function receive the points with this form
+        cv2.polylines(img, pts, True, self.POLYGON_LINE_COLOR,self.THICKNESS)
+        
 #TEST
 ################################################################################
 

@@ -7,7 +7,7 @@ import numpy as np
 import sys
 sys.path.append('./')
 from APP.MAKEDATASET.views.basic.label_for_image import LabelForImage
-from APP.MAKEDATASET.models.draw_objects import Line, PointsStore
+from APP.MAKEDATASET.models.draw_objects import LineStore, PointsStore
 
 
 class CanvasImgShow(LabelForImage):
@@ -51,7 +51,7 @@ class Dialogo(QDialog):
         self.btn_draw_line = QPushButton("draw line")
 
         self.btn_clear = QPushButton("Clear")
-        self.line = Line()
+        self.line = LineStore()
 
         self.layout.addWidget(self.btn_draw_line)
 
