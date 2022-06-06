@@ -15,6 +15,11 @@ class DataFromAcquisition:
         self.rgb = rgb
         self.depth = depth
         self.hour = datetime.now()
+    
+    def copy(self):
+        copy = DataFromAcquisition(self.rgb.copy(), self.depth.copy())
+        copy.hour = self.hour
+        return copy
 
 
 class DataToSave:
