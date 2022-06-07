@@ -1,4 +1,5 @@
 import sys
+from time import sleep
 sys.path.append('./')
 from APP.MAKEDATASET.models import  RGB_PREFIX, DEPTH_PREFIX, TEST_IMG_PATH
 from APP.MAKEDATASET.models.data_objects import DataFromAcquisition
@@ -6,7 +7,6 @@ from APP.MAKEDATASET.control.stream_source import Stream
 from typing import List, Tuple
 import glob
 import cv2
-
 
 
 class ImageGenerator(Stream):
@@ -85,6 +85,7 @@ class ImageGenerator(Stream):
             depth = cv2.imread(depth_name, cv2.IMREAD_UNCHANGED)
             self.update_index()
             self.is_working = True
+            sleep(0.02)# 20 ms
             return DataFromAcquisition(rgb, depth)
         except:
             self.close()
