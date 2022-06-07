@@ -92,9 +92,9 @@ class DrawDataToShow(DataToShow):
     
         cv2.arrowedLine(self.depth, init_point, end_point,self.ARROW_COLOR, self.THICKNESS, tipLength = self.TIP_LENGTH) 
     
-    def draw_horizontal_row(self, leftward: bool= True):
+    def draw_horizontal_row(self, rightward: bool= True):
         len_arrow = self.ARROW_LENGTH*self.WIDTH/2
-        if  leftward:
+        if  not rightward:
             len_arrow = - len_arrow
         init_point = self.get_mid_point()
         end_point = init_point + int_array(len_arrow, 0)
