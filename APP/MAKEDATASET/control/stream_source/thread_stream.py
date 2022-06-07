@@ -1,3 +1,4 @@
+from ast import Try
 from typing import Dict, List
 from PyQt5.QtCore import QThread, pyqtSignal
 from time import sleep
@@ -102,7 +103,13 @@ class ThreadToStream(QThread):
         sleep(0.1)
         if hasattr(self.actual_stream, 'close'):
             self.actual_stream.close()
-        self.actual_stream = None    
+        self.actual_stream = None
+    
+    def disconnect_data_ready_slots(self):
+        try:
+            self.data_ready.disconnect()
+        except:
+            print('data_ready has not connections')
 
 
 #TEST
