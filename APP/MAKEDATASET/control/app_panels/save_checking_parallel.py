@@ -119,12 +119,13 @@ class SaveCheckingParallel(PanelToSave):
 ################################################################################
 if __name__=='__main__':
     stream_handler = ThreadToStream()
-    stream_handler.add_stream(ImageGenerator())
+    stream = ImageGenerator()
+    stream_handler.add_stream(stream)
     stream_handler.start()
     stream_handler.update_availables()
-    stream_handler.set_stream(ImageGenerator.name)
+    stream_handler.set_stream(stream.name)
     app = QApplication(sys.argv)
-    window = SaveCheckingParallel(stream_handler, DATASET_TYPES.MILL, TEST_PATH,[10,10],[-10,-10] )# Test with area
+    window = SaveCheckingParallel(stream_handler, DATASET_TYPES.Z_CALIBRATION, TEST_PATH,[100,100],[-100,-100] )# Test with area
     window.show()
     sys.exit(app.exec_())
     
