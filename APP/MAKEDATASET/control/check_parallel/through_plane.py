@@ -58,7 +58,7 @@ class ThroughPlane:
         mask = self.get_mask(shape, list_points)
         model = self.get_model(depth_img, mask)
         x_variation = model.coef_[0]*shape[1]
-        y_variation = model.coef_[1]*shape[0]
+        y_variation = -model.coef_[1]*shape[0]# (-) sign. this is because, top side was take as reference, but v-row grow negative towards top
         x_inclination = InclinationStatus(self.threshold, x_variation)
         y_inclination = InclinationStatus(self.threshold, y_variation)
         depth_model_img = self.get_surface_img(model, shape)
