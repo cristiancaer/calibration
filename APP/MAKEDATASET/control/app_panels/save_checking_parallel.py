@@ -15,6 +15,7 @@ from APP.MAKEDATASET.models import TEST_PATH
 
 
 class SaveCheckingParallel(PanelToSave):
+    name = "save"
     def __init__(self,stream_handler: ThreadToStream, type_dataset:str = None, path: str= '', top_point: List[int]= None, bottom_point: List[int]= None, parent: QWidget=None):
         """app to save images checking that the flat surface is parallel to the camera
 
@@ -33,13 +34,13 @@ class SaveCheckingParallel(PanelToSave):
 
     def init_gui(self):
         super().init_gui()
+        self.buttom_new_dataset.clicked.connect(self.new_dataset)
         self.panel_rgb_d.set_dark_images()
         # self.showMaximized()
         
     def setup(self, top_point: List[int], bottom_point:List[int]):
         # stream config
-        self.stream_handler.data_ready.connect(self.process_images)
-        self.stream_handler.data_ready.connect(self.save_images)
+        self.connect_stream()
         # reload stream
         self.panel_rgb_d.button_reconnect_stream.clicked.connect(self.stream_handler.set_stream)
         
@@ -55,6 +56,7 @@ class SaveCheckingParallel(PanelToSave):
         # check config
         self.update_parallel_checking(top_point, bottom_point)
         # check threshold
+        
     def update_parallel_checking(self, top_point: List[int], bottom_point: List[int]):
         """_summary_
 
@@ -101,14 +103,20 @@ class SaveCheckingParallel(PanelToSave):
     
     def change_status_saving(self):
         self.is_saving = not self.is_saving
+        self.button_save.set_pressed(self.is_saving)
     
     def new_dataset(self):
+        self.is_saving = False
         self.panel_rgb_d.set_dark_images()
-        if hasattr('function_to_going',self):
+        if hasattr(self, 'function_to_going'):
             self.function_to_going()
         
     def set_function_to_going(self, function_to_going):
         self.function_to_going =  function_to_going
+        
+    def connect_stream(self):
+        self.stream_handler.data_ready.connect(self.process_images)
+        self.stream_handler.data_ready.connect(self.save_images)
         
     def closeEvent(self, event) -> None:
         self.stream_handler.close()
@@ -125,7 +133,7 @@ if __name__=='__main__':
     stream_handler.update_availables()
     stream_handler.set_stream(stream.name)
     app = QApplication(sys.argv)
-    window = SaveCheckingParallel(stream_handler, DATASET_TYPES.Z_CALIBRATION, TEST_PATH,[100,100],[-100,-100] )# Test with area
+    window = SaveCheckingParallel(stream_handler, DATASET_TYPES.MILL, TEST_PATH,[100,100],[-100,-100] )# Test with area
     window.show()
     sys.exit(app.exec_())
     

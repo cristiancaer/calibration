@@ -14,7 +14,8 @@ from APP.MAKEDATASET.views.draw_tools.draw_over_data_to_show import DrawDataToSh
 from APP.MAKEDATASET.models.draw_objects import PointsStore, LineStore
 
 
-class PanelSetupMill(PanelMillSetup):
+class MillSetup(PanelMillSetup):
+    name = 'mill setup'
     def __init__(self, stream_handler: ThreadToStream,parent= None)->None:
         self.stream_handler = stream_handler
         super().__init__(parent)
@@ -22,7 +23,7 @@ class PanelSetupMill(PanelMillSetup):
     
     def setup(self):
          # stream config
-        self.stream_handler.data_ready.connect(self.process_images)
+        self.connect_stream()
         self.button_screenshot.clicked.connect(self.take_screenshot)
         # reload stream
         self.button_reconnect_stream.clicked.connect(self.stream_handler.set_stream)
@@ -43,6 +44,9 @@ class PanelSetupMill(PanelMillSetup):
         
         self.check_parallel = ThroughPlane(threshold=20)
         self.button_get_inclination.clicked.connect(self.process_screenshot)
+        
+        # go at click in next button
+        self.back_next_buttons.next.clicked.connect(self.f_button_next)
     
     def process_images(self, data:DataFromAcquisition) -> None:
         """
@@ -126,7 +130,6 @@ class PanelSetupMill(PanelMillSetup):
         self.button_add_polygon.setEnabled(False)
         
     def f_button_add_polygon(self):
-        
         if self.list_polygons:
             if not self.list_polygons[-1].is_full:
                 return None
@@ -136,6 +139,21 @@ class PanelSetupMill(PanelMillSetup):
         self.button_add_polygon.set_pressed(True)
         self.button_left_line.setEnabled(False)
         self.button_right_line.setEnabled(False)
+    
+    def f_button_next(self):
+        self.set_dark_images()
+        if hasattr(self, 'function_to_going',):
+            self.function_to_going()
+            
+    def set_function_to_going(self, function_to_going):
+        self.function_to_going =  function_to_going
+    
+    def connect_stream(self):
+        self.stream_handler.data_ready.connect(self.process_images)
+
+    def closeEvent(self, event) -> None:
+        self.stream_handler.close()
+        return super().closeEvent(event)
         
         
         
@@ -149,6 +167,6 @@ if __name__=='__main__':
     stream_handler.update_availables()
     stream_handler.set_stream(stream_class.name)
     app = QApplication(sys.argv)
-    window = PanelSetupMill(stream_handler)
+    window = MillSetup(stream_handler)
     window.show()
     sys.exit(app.exec())
