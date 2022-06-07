@@ -29,9 +29,11 @@ class PanelMillSetup(PanelRGBDImage):
         tool_layout.addWidget(self.button_right_line)
         
         self.button_add_polygon = BasicButton('Add Polygon')
+        self.button_add_polygon.setEnabled(False)
         tool_layout.addWidget(self.button_add_polygon)
         
         self.button_get_inclination = BasicButton('Get inclination info')
+        self.button_get_inclination.setEnabled(False)
         tool_layout.addWidget(self.button_get_inclination)
         
         self.main_layout.addWidget(group_tool_buttons, 4, 0, 1 , 2)
