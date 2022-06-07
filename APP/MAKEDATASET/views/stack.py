@@ -14,9 +14,8 @@ class StackWidget(QWidget):
         layout = QGridLayout(self)
         self.stack = QStackedWidget ()
         layout.addWidget(self.stack)
-        self.init_gui()
     
-    def init_gui(self):
+    def setup(self):
         for panel in self.list_panels:
             if hasattr(panel,'back_next_buttons'):
                 panel.back_next_buttons.back.clicked.connect(self.go_to_panel)
@@ -28,7 +27,6 @@ class StackWidget(QWidget):
     def go_to_panel(self, panel: QWidget = None):
         """ if no args: all panel that have a back button will conduce to the last_index stored """
         if panel:
-            self.update_panels_context()
             index = self.list_panels.index(panel)
             self.last_index.append(index)
         else:
@@ -40,5 +38,3 @@ class StackWidget(QWidget):
         self.stack.setCurrentIndex(index)
         
         
-    def update_panels_context(self):
-        self.dataset_type = self.panel_dataset_type.get_selected()

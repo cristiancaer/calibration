@@ -41,24 +41,11 @@ class PanelToSave(QWidget):
         save_title = ' TakeScreamshot'
         if type_datset == DATASET_TYPES.MILL:
             save_title = 'Save'
-        else:
-            self.button_save.setStyleSheet("QPushButton::pressed"
-                             "{"
-                             "background-color : green;"
-                             "}")
             
         self.button_save.setText(save_title)
-    
-    def set_green_buttom_save(self, flat: bool= True):
-        if flat:
-            color = 'green'
-        else: 
-            color = 'lightgray'
-        self.button_save.setStyleSheet("background-color : {}".format(color))
         
     def change_status_save(self):
         self.status_save = not self.status_save
-        self.set_green_buttom_save(self.status_save)
     
 #Test
 if __name__=='__main__':

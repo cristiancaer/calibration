@@ -9,6 +9,11 @@ from APP.MAKEDATASET.views.stack import StackWidget
 class PanelBasicConfig(StackWidget):
     name = 'basic_configuration'
     function_to_going = None
+    def __init__(self, parent = None)->None:
+        super().__init__(parent)
+        self.init_gui()
+        self.setup()
+        
     def init_gui(self):
         self.panel_dataset_type = PanelDatasetType()
         self.add_panel(self.panel_dataset_type)
@@ -22,7 +27,7 @@ class PanelBasicConfig(StackWidget):
         # PanelChoosePath
         self.panel_choose_path.back_next_buttons.next.clicked.connect(lambda: self.go_to_panel(self.panel_select_camera))
         self.panel_select_camera.back_next_buttons.next.clicked.connect(self.final_next)
-        super().init_gui()
+        
     
     def set_function_to_going(self, function_to_going):
         self.function_to_going =  function_to_going
