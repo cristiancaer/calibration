@@ -1,20 +1,25 @@
 from PyQt5.QtWidgets import  QWidget
 import sys
+from threading import Lock
 sys.path.append('./')
 from APP.MAKEDATASET.views.panel_basic_config import PanelBasicConfig
 from APP.MAKEDATASET.control.stream_source.intel_455 import Intel455
 from APP.MAKEDATASET.control.stream_source.orbbec import Orbbec
 from APP.MAKEDATASET.control.stream_source.test import ImageGenerator
-from APP.MAKEDATASET.control.stream_source.thread_stream import ThreadToStream
 from APP.MAKEDATASET.models.data_objects import DATASET_TYPES, DatasetTypes
 from APP.MAKEDATASET.views.stack import StackWidget
 from APP.MAKEDATASET.control.app_panels.setup_mill import MillSetup
 from APP.MAKEDATASET.control.app_panels.save_checking_parallel import SaveCheckingParallel
-        
+from APP.MAKEDATASET.control.loop_event_manager import LoopEventManager
+from APP.MAKEDATASET.control.stream_source.stream_handler import StreamHandler
+from APP.MAKEDATASET.control.save_pair_images import SaveHandler
+
 
 class MainWindow(StackWidget):
-    def __init__(self, window_name = '', stream_handler: ThreadToStream= None, parent: QWidget=None):
+    def __init__(self,stream_handler: StreamHandler, save_handler:SaveHandler, window_name = '', parent: QWidget=None):
+        self.lock_visualization = Lock()
         self.stream_handler = stream_handler
+        self.save_handler = save_handler
         self.window_name = window_name
         super().__init__(parent)
         self.init_gui()
@@ -24,10 +29,10 @@ class MainWindow(StackWidget):
         self.setWindowTitle(self.window_name)
         self.panel_stack_basic_config = PanelBasicConfig()
         self.add_panel(self.panel_stack_basic_config)
-        self.pane_setup_mill = MillSetup(self.stream_handler)
-        self.pane_setup_mill.disconnect_stream()# by default if the stream data is ready start to show in panel. this avoid update the image visualization
+        self.pane_setup_mill = MillSetup(self.stream_handler, self.lock_visualization)
+        # by default if the stream data is ready start to show in panel. this avoid update the image visualization
         self.add_panel(self.pane_setup_mill)
-        self.panel_save = SaveCheckingParallel(self.stream_handler, top_point=[100,100], bottom_point=[-100,-100])
+        self.panel_save = SaveCheckingParallel(self.stream_handler, self.save_handler, self.lock_visualization,top_point=[100,100], bottom_point=[-100,-100])
         self.add_panel(self.panel_save)
         print(f'id panel save :{id(self.panel_save)}')
         # self.showMaximized()
@@ -37,7 +42,7 @@ class MainWindow(StackWidget):
         self.stream_handler.add_stream(Intel455())
         self.stream_handler.add_stream(Orbbec())
         self.stream_handler.add_stream(ImageGenerator())
-        self.stream_handler.start()
+   
         # update available streams
         # self.update_available_streams()
         self.panel_stack_basic_config.panel_select_camera.button_update_streams.clicked.connect(self.update_available_streams)
@@ -86,18 +91,35 @@ class MainWindow(StackWidget):
         path = self.panel_stack_basic_config.panel_choose_path.path
         self.panel_save.update_save_info(dataset_type, path)
         self.panel_save.update_stream_info()
-        
-        
+   
     def closeEvent(self, event) -> None:
         self.stream_handler.close()
+        self.save_handler.close()
         return super().closeEvent(event)
+    
+    def resizeEvent(self, event):
+        with self.lock_visualization:
+            super().resizeEvent(event)
+
+    def moveEvent(self, event):
+        with self.lock_visualization:
+            super().moveEvent(event)
+
+    def paintEvent(self, event) -> None:
+        with self.lock_visualization:
+            super().paintEvent(event)
     
 #TEST
 ################################################################################
 if __name__=='__main__':
     from PyQt5.QtWidgets import QApplication
-    stream_handler = ThreadToStream()
+    event_manager = LoopEventManager('event_manager')
+    event_manager.start()
+    stream_handler = StreamHandler(event_manager)
+    save_handler = SaveHandler(event_manager)
     app = QApplication(sys.argv)
-    window = MainWindow('Make Dataset', stream_handler)
+    window = MainWindow( stream_handler, save_handler, 'Make Dataset')
     window.show()
-    sys.exit(app.exec_())
+    app.exec_()
+    event_manager.stop()
+    sys.exit()
