@@ -99,3 +99,10 @@ def int_array(*args: Any) -> np.ndarray:
         if not isinstance(value, list):
             buffer.append(value)
     return np.array(buffer, dtype=int)
+
+class EventData:
+    "to temporary store the info used in event_loop_manager"
+
+    def __init__(self, name: str, data_to_work: any) -> None:
+        self.name = name
+        self.data_to_work = data_to_work
