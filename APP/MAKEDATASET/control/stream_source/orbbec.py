@@ -106,7 +106,7 @@ class Orbbec(Stream):
 #TEST
 ################################################################################
 def run():
-    from APP.MAKEDATASET.control.stream_source.thread_stream import test_stream
+    from APP.MAKEDATASET.control.stream_source.stream_handler import test_stream
     test_stream(Orbbec)
 if __name__ == '__main__':
     run()

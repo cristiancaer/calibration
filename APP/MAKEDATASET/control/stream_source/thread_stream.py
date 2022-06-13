@@ -1,4 +1,3 @@
-from ast import Try
 from typing import Dict, List
 from PyQt5.QtCore import QThread, pyqtSignal
 from time import sleep

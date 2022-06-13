@@ -26,8 +26,7 @@ class PanelBasicConfig(StackWidget):
         self.panel_dataset_type.back_next_buttons.next.clicked.connect(lambda: self.go_to_panel(self.panel_choose_path))
         # PanelChoosePath
         self.panel_choose_path.back_next_buttons.next.clicked.connect(lambda: self.go_to_panel(self.panel_select_camera))
-        self.panel_select_camera.back_next_buttons.next.clicked.connect(self.final_next)
-        
+        self.panel_select_camera.back_next_buttons.next.clicked.connect(self.final_next)    
     
     def set_function_to_going(self, function_to_going):
         self.function_to_going =  function_to_going
@@ -35,6 +34,7 @@ class PanelBasicConfig(StackWidget):
     def final_next(self):
         if self.function_to_going is not None:
             self.function_to_going()
+            
 #TEST
 ################################################################################
 if __name__=='__main__':

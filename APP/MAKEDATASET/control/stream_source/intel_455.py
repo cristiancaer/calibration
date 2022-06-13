@@ -61,7 +61,7 @@ class Intel455(Stream):
             self.aligner = rs.align(align_to)
             
             config.enable_stream(rs.stream.depth, self.shape[1], self.shape[0], rs.format.z16, 30)
-            config.enable_stream(rs.stream.infrared, 1, self.shape[1], self.shape[0], rs.format.y8, 30)
+            # config.enable_stream(rs.stream.infrared, 1, self.shape[1], self.shape[0], rs.format.y8, 30)
             config.enable_stream(rs.stream.color,self.shape[1], self.shape[0], rs.format.bgr8, 30)
 
             # Start streaming
@@ -88,7 +88,9 @@ class Intel455(Stream):
             if self.is_working:
                 # Wait for a coherent pair of frames: depth and color
                 frames = self.pipeline.wait_for_frames()
+                sleep(0.01)
                 aligned_frames = self.aligner.process(frames)
+                sleep(0.05)
                 depth_frame = aligned_frames.get_depth_frame()
                 color_frame = aligned_frames.get_color_frame()
                 # color_frame = frames.get_infrared_frame()
@@ -112,8 +114,9 @@ class Intel455(Stream):
                 self.setup_done = False
                 self.is_working = False
                 sleep(0.1)
-                self.pipeline.stop()
                 self.config.disable_all_streams()
+                sleep(0.1)
+                self.pipeline.stop()
                 del self.pipeline
                 print(f'{self.name}  closed')
             except Exception:
@@ -124,5 +127,5 @@ class Intel455(Stream):
 ################################################################################
 
 if __name__=='__main__':
-    from APP.MAKEDATASET.control.stream_source.thread_stream import test_stream
+    from APP.MAKEDATASET.control.stream_source.stream_handler import test_stream
     test_stream(Intel455)

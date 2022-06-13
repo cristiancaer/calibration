@@ -1,23 +1,28 @@
 from time import sleep
 from typing import List
-from PyQt5.QtWidgets import QWidget, QApplication, QGroupBox, QHBoxLayout
-import cv2
+from PyQt5.QtWidgets import  QApplication
+from threading import Lock
 import sys
 sys.path.append('./')
-from APP.MAKEDATASET.control.stream_source.thread_stream import ThreadToStream
+from APP.MAKEDATASET.control.stream_source.stream_handler import StreamHandler
+from APP.MAKEDATASET.control.loop_event_manager import LoopEventManager
 from APP.MAKEDATASET.control.stream_source.test import ImageGenerator
 from APP.MAKEDATASET.control.stream_source.intel_455 import Intel455
 from APP.MAKEDATASET.control.check_parallel.through_plane import ThroughPlane
 from APP.MAKEDATASET.views.panel_mill_setup import PanelMillSetup
-from APP.MAKEDATASET.models.data_objects import DataFromAcquisition, DataToSave
+from APP.MAKEDATASET.models.data_objects import DataFromAcquisition
 from APP.MAKEDATASET.views.draw_tools.draw_over_data_to_show import DrawDataToShow
 from APP.MAKEDATASET.models.draw_objects import PointsStore, LineStore
 
 
 class MillSetup(PanelMillSetup):
     name = 'mill setup'
-    def __init__(self, stream_handler: ThreadToStream,parent= None)->None:
+    def __init__(self, stream_handler: StreamHandler, lock_visualization: Lock = None,parent= None)->None:
         self.stream_handler = stream_handler
+        if lock_visualization is not  None:
+            self.lock_visualization = lock_visualization
+        else:
+            self.lock_visualization = Lock()
         super().__init__(parent)
         self.setup()
     
@@ -59,8 +64,8 @@ class MillSetup(PanelMillSetup):
             data_to_show.draw_line_over(self.left_line.points, in_rgb=True)
         if self.right_line.is_full:
             data_to_show.draw_line_over(self.right_line.points, in_rgb= True)
-            
-        self.update_rgbd(data_to_show)
+        with self.lock_visualization:
+            self.update_rgbd(data_to_show)
         self.last_data = data
     
     def process_screenshot(self):
@@ -72,8 +77,8 @@ class MillSetup(PanelMillSetup):
             zmin, zmax = self.panel_visualization_range.get_range() 
             data_to_show = DrawDataToShow(last_data, zmin, zmax)
             data_to_show.draw_parallel_information(y_status, x_status)
-        
-        self.update_rgbd(data_to_show)
+        with self.lock_visualization:
+            self.update_rgbd(data_to_show)
         self.list_polygons = []
         
     
@@ -109,7 +114,8 @@ class MillSetup(PanelMillSetup):
                 data_to_show = DrawDataToShow(self.last_data, zmin, zmax)
                 for polygon in self.list_polygons:
                     data_to_show.draw_polygon_over(polygon.points, in_rgb=True)
-                self.update_rgbd(data_to_show)
+                with self.lock_visualization:
+                    self.update_rgbd(data_to_show)
         
         if not self.button_screenshot.status:
             self.button_left_line.setEnabled(True)
@@ -154,19 +160,33 @@ class MillSetup(PanelMillSetup):
     def closeEvent(self, event) -> None:
         self.stream_handler.close()
         return super().closeEvent(event)
-        
+    
+    def resizeEvent(self, event):
+        with self.lock_visualization:
+            super().resizeEvent(event)
+
+    def moveEvent(self, event):
+        with self.lock_visualization:
+            super().moveEvent(event)
+
+    def paintEvent(self, event) -> None:
+        with self.lock_visualization:
+            super().paintEvent(event)
         
         
 #TEST
 ################################################################################
 if __name__=='__main__':
-    stream_handler = ThreadToStream()
+    event_manager = LoopEventManager('event_manger')
+    event_manager.start()
+    stream_handler = StreamHandler(event_manager)
     stream_class = ImageGenerator()
     stream_handler.add_stream(stream_class)
-    stream_handler.start()
-    stream_handler.update_availables()
+    stream_handler.update_available_streams()
     stream_handler.set_stream(stream_class.name)
     app = QApplication(sys.argv)
     window = MillSetup(stream_handler)
     window.show()
-    sys.exit(app.exec())
+    app.exec()
+    event_manager.stop()
+    sys.exit()

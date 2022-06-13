@@ -1,8 +1,6 @@
-from calendar import c
 from APP.MAKEDATASET.models import TEST_IMG
 from APP.MAKEDATASET.views import depth2color
 from PyQt5.QtGui import QPixmap, QImage
-from PyQt5.QtWidgets import QWidget
 import cv2
 import numpy as np
 from PyQt5.QtCore import Qt

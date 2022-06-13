@@ -1,56 +1,72 @@
-from PyQt5.QtCore import QThread, pyqtSignal
 from queue import Queue
 import sys
 import cv2
 sys.path.append('./')
 from APP.MAKEDATASET.models.data_objects import DataFromAcquisition, DataToSave
+from APP.MAKEDATASET.control.loop_event_manager import LoopEventManager, SignalHandler
 
 
-class ThreadToSave(QThread):
-    last_index = pyqtSignal(str)
+class SaveHandler():
     
-    def __init__(self, path: str = None, datatime_index: bool = False):
+    def __init__(self, event_manager:LoopEventManager, path: str = None, datetime_index: bool = False):
+        """object to store rgb-d images. to save a new pair the object has the function add_new, the images must came in the DataToSave object
+        
+        when the new pair is stored, the object has the last_index(signalHandler) to Know the name of the last saved
+        Args:
+            event_manager (LoopEventManager): used to put a loop function, which will be in charge of the save the images, in a loop inside of a Thread
+            path (str, optional): optional in constructor but required to save. Defaults to None.
+            datetime_index (bool, optional): optional in constructor but required to save. if data_index = False the object will use a int as index_name of the image, if datetime_index = True, the object will use the hour as index_name Defaults to False.
+        """
         super().__init__()
-        self.use_datatime_index = self.set_index_type(datatime_index)
+        self.use_datetime_index = self.set_index_type(datetime_index)
         self.path = self.set_path(path)
         self.index = 0
         self.queue = Queue(50)
         self.is_running = True
-        self.FORTMAT = '.png'
+        self.FORMAT = '.png'
+        self.last_index = SignalHandler('last_saved_image_index', str)
+        event_manager.add_signal_handler(self.last_index)
+        event_manager.emit_function_only_once(self.loop_task, wrap_in_loop= True)
         
     def add_new(self, data_to_save: DataToSave):
+        """ add new data to stor in disc"""
         self.queue.put(data_to_save)
         
     def set_path(self, path: str)-> None:
         self.path = path
         
-    def set_index_type(self, datatime_index: bool):
-        self.use_datatime_index = datatime_index
+    def set_index_type(self, datetime_index: bool):
+        """_summary_
+
+        Args:
+        datetime_index (bool, optional): optional in constructor but required to save. if data_index = False the object will use a int as index_name of the image, if datetime_index = True, the object will use the hour as index_name Defaults to False.
+
+        """
+        self.use_datetime_index = datetime_index
         
-    def get_last_pair(self)-> DataToSave:
+    def _get_last_pair(self)-> DataToSave:
+        if not self.is_running:
+            return
         return self.queue.get()
     
-    def run(self):
-        while self.is_running:
-            data_to_save = self.get_last_pair()
-            if isinstance(data_to_save, type(None)):
-                continue
-            if self.use_datatime_index:
+    def loop_task(self):
+        data_to_save = self._get_last_pair()
+        if data_to_save is not None:
+            if self.use_datetime_index:
                 index = data_to_save.hour
             else:
                 index = str(self.index )
                 self.index+= 1
             for key, image in data_to_save.data.items():
-                path_name = f'{self.path}/{key}_{index}{self.FORTMAT}'
+                path_name = f'{self.path}/{key}_{index}{self.FORMAT}'
                 ret = cv2.imwrite(path_name, image)
-            self.last_index.emit(index+self.FORTMAT)
+            self.last_index.emit(index+self.FORMAT)
     
     def close(self):
         self.is_running = False
         self.queue.put(None)
         print('thread to save images closed')
         
-
 
 #TEST
 ################################################################################
@@ -59,10 +75,16 @@ if __name__=='__main__':
     from PyQt5.QtWidgets import QApplication
     from APP.MAKEDATASET.views.panel_to_save import PanelToSave
     import numpy as np
+    
+    event_manager = LoopEventManager('manager')
+    event_manager.start()
+    
     app = QApplication(sys.argv)
     path= 'test_folder'
     window = PanelToSave(path= path)
-    save_handler = ThreadToSave(path, datatime_index=False)
+    
+    save_handler = SaveHandler(event_manager,path, datetime_index=False)
+    
     img = np.ones((480, 640, 3), dtype=np.uint16)
     data_to_save = DataToSave(DataFromAcquisition(img, 1000*img))
     n = 3
@@ -70,6 +92,8 @@ if __name__=='__main__':
         save_handler.add_new(data_to_save)
     save_handler.last_index.connect(window.line_edit_last_saved.update_text)
     window.show()
-    save_handler.start()
-    sys.exit(app.exec_())
+    app.exec_()
+    save_handler.close()
+    event_manager.stop()
+    sys.exit()
     
