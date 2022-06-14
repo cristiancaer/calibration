@@ -30,7 +30,7 @@ class Save:
         if self.first_saved is None:
             self.first_saved = last_saved
         os.system('clear')
-        print(f'fps: {self.fps: .2f}')
+        print(f'fps: {self.fps: .2f}; buffer to save: {self.save_handler.queue.qsize()}')
         
         print('first saved')
         print(self.first_saved)
