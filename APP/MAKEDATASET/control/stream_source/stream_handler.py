@@ -128,6 +128,7 @@ def test_stream( stream_class: Stream):
                 zmin, zmax = self.panel_visualization_range.get_range()
                 data = DataToShow(data_acquisition=data, zmin=zmin, zmax=zmax)
                 self.update_rgbd(data)
+                
         
         def closeEvent(self, event) -> None:
             camera.close()

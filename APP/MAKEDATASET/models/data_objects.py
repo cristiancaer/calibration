@@ -11,10 +11,11 @@ class DataFromAcquisition:
     """ To store de data produce in acquisition 
     """
 
-    def __init__(self, rgb: np.ndarray, depth: np.ndarray) -> None:
+    def __init__(self, rgb: np.ndarray, depth: np.ndarray, fps: float = None) -> None:
         self.rgb = rgb
         self.depth = depth
         self.hour = datetime.now()
+        self.fps = fps 
     
     def copy(self):
         copy = DataFromAcquisition(self.rgb.copy(), self.depth.copy())
@@ -60,6 +61,7 @@ class DataToShow:
         """
         self.rgb = data_acquisition.rgb.copy()
         self.depth = depth2color(data_acquisition.depth.copy(), zmin=zmin, zmax=zmax)
+        self.fps = data_acquisition.fps
         self.HEIGHT, self.WIDTH = self.rgb.shape[:2]
 
 

@@ -15,7 +15,7 @@ class Orbbec(Stream):
     depth_units = '100um'
     def __init__(self) -> None:
         """
-        get object to handle an stream from  the  orbbec camara
+        get object to handle an stream from  the  orbbec camera
         """
         # Initialize the  device
         self.dev = None
@@ -23,7 +23,7 @@ class Orbbec(Stream):
 
     def setup(self) -> None:
         """
-        init config to make a connection with the orbbec camara
+        init config to make a connection with the orbbec camera
         """
         openni2.initialize()
         # Start the depth stream
@@ -83,7 +83,8 @@ class Orbbec(Stream):
         try:
             rgb = self.get_rgb()
             depth = self.get_depth()
-            data = DataFromAcquisition(rgb=rgb, depth=depth)
+            fps = self.get_fps()
+            data = DataFromAcquisition(rgb=rgb, depth=depth, fps=fps)
             self.is_working = True
         except:
             self.close()

@@ -4,7 +4,7 @@ import sys
 import cv2
 sys.path.append('./')
 from APP.MAKEDATASET.views.basic.panel_one_image import PanelImage
-from APP.MAKEDATASET.views.basic import CustomSpinBox, LabelFont
+from APP.MAKEDATASET.views.basic import CustomSpinBox, LabelFont, CustomLabel
 from APP.MAKEDATASET.models import TEST_IMG, ZMIN, ZMAX
 from APP.MAKEDATASET.models.data_objects import DataFromAcquisition, DataToShow
 from APP.MAKEDATASET.views.basic.buttons import BasicButton
@@ -71,6 +71,7 @@ class PanelRGBDImage(QWidget):
         """
         self.panel_rgb.update_image(data_to_show.rgb)
         self.panel_depth.update_image(data_to_show.depth)
+        self.update_fps(data_to_show.fps)
         
     def set_dark_images(self):
         """
@@ -79,6 +80,9 @@ class PanelRGBDImage(QWidget):
         
         self.panel_depth.canvas.clear_canvas()
         self.panel_rgb.canvas.clear_canvas()
+    
+    def update_fps(self, fps:float):
+        self.panel_depth.label_image_title.setText(f'{self.panel_depth.title}   fps:{fps:.2f}')
         
         
 #TEST
@@ -88,6 +92,7 @@ if __name__=='__main__':
     data_to_show = DataToShow(DataFromAcquisition(rgb=img_test, depth=img_test))
     app = QApplication(sys.argv)
     window = PanelRGBDImage()
+    window.update_fps(30)
     window.set_dark_images()
     window.panel_visualization_range.set_units('100 um')
     window.update_rgbd(data_to_show)

@@ -18,8 +18,8 @@ class SaveHandler():
             datetime_index (bool, optional): optional in constructor but required to save. if data_index = False the object will use a int as index_name of the image, if datetime_index = True, the object will use the hour as index_name Defaults to False.
         """
         super().__init__()
-        self.use_datetime_index = self.set_index_type(datetime_index)
-        self.path = self.set_path(path)
+        self.set_index_type(datetime_index)
+        self.set_path(path)
         self.index = 0
         self.queue = Queue(50)
         self.is_running = True

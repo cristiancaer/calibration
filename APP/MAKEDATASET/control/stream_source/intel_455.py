@@ -11,6 +11,7 @@ from APP.MAKEDATASET.control.stream_source import Stream
 from APP.MAKEDATASET.models.data_objects import DataFromAcquisition
 from APP.MAKEDATASET.models import IMAGE_SHAPE
 import traceback
+from time import time
 
 class Intel455(Stream):
     name = 'intel455'
@@ -88,9 +89,7 @@ class Intel455(Stream):
             if self.is_working:
                 # Wait for a coherent pair of frames: depth and color
                 frames = self.pipeline.wait_for_frames()
-                sleep(0.01)
                 aligned_frames = self.aligner.process(frames)
-                sleep(0.05)
                 depth_frame = aligned_frames.get_depth_frame()
                 color_frame = aligned_frames.get_color_frame()
                 # color_frame = frames.get_infrared_frame()
@@ -99,7 +98,9 @@ class Intel455(Stream):
                 rgb = np.asanyarray(color_frame.get_data())
                 # rgb = cv2.merge((rgb,rgb,rgb))
                 self.is_working = True
-                data = DataFromAcquisition(rgb,depth)
+                fps = self.get_fps()
+                data = DataFromAcquisition(rgb,depth, fps)
+                
         except:
             data = None
             self.close()
