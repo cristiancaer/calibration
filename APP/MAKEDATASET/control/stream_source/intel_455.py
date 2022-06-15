@@ -70,6 +70,7 @@ class Intel455(Stream):
             self.pipeline.start(config)
             self.config = config
             self.setup_done = True
+            sleep(1)
             self.is_working = True
             
         except Exception:
@@ -94,8 +95,8 @@ class Intel455(Stream):
                 color_frame = aligned_frames.get_color_frame()
                 # color_frame = frames.get_infrared_frame()
                 # Convert images to numpy arrays
-                depth = np.asanyarray(depth_frame.get_data())
-                rgb = np.asanyarray(color_frame.get_data())
+                depth = np.asanyarray(depth_frame.get_data()).copy()
+                rgb = np.asanyarray(color_frame.get_data()).copy()
                 # rgb = cv2.merge((rgb,rgb,rgb))
                 self.is_working = True
                 fps = self.get_fps()

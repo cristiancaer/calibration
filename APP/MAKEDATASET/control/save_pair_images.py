@@ -21,7 +21,7 @@ class SaveHandler():
         self.set_index_type(datetime_index)
         self.set_path(path)
         self.index = 0
-        self.queue = Queue(50)
+        self.queue = Queue(500)
         self.is_running = True
         self.FORMAT = '.png'
         self.last_index = SignalHandler('last_saved_image_index', str)
