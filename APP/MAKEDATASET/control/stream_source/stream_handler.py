@@ -1,27 +1,25 @@
+import traceback
 import sys
 from typing import Dict, List
 from time import sleep
+from PyQt5.QtCore import QThread, pyqtSignal, pyqtSlot
 sys.path.append('./')
 from APP.MAKEDATASET.control.loop_event_manager import LoopEventManager, SignalHandler
 from APP.MAKEDATASET.models.data_objects import DataFromAcquisition, DataToShow
 from APP.MAKEDATASET.control.stream_source import Stream
 
 
-class StreamHandler:
-    def __init__(self, event_manager: LoopEventManager)->None:
+class BasicStreamHandler:
+    data_ready = None # signal which will be emitted when data from acquisition is ready
+    def __init__(self)->None:
         """object to handler the source where the images rgb-d are acquired
         when the data is ready the  data_ready(SignalHandler) is emitted with a DataFromAcquisition Object
-
         """
-        self.event_manager = event_manager
         self.possible_streams: List[Stream]= []
         self.available_streams: Dict[str, Stream] = {}
-        self.data_ready = SignalHandler('acquisition_ready', DataFromAcquisition)
-        self.event_manager.add_signal_handler(self.data_ready)
-        self.event_manager.emit_function_only_once(self.acquisition_task, wrap_in_loop=True)
         self.stop = True# start with acquisition stopped
         self.actual_stream = None
-            
+        
     def add_stream(self, stream: Stream, check_is_available: bool= False) -> None:
         """add a new possible stream
         """
@@ -104,12 +102,42 @@ class StreamHandler:
                         print(self.message)
         except:
             self.close()
+            print(traceback.format_exc())
 
     def set_stop(self, flat: bool= True):
         self.stop = flat
     
     def disconnect_data_ready_slots(self):
+        pass
+    
+class StreamHandler(BasicStreamHandler):
+    def __init__(self, event_manager: LoopEventManager)->None:
+        super().__init__()
+        self.data_ready = SignalHandler('data_ready', DataFromAcquisition)
+        event_manager.add_signal_handler(self.data_ready)
+        event_manager.emit_function_only_once(self.acquisition_task, wrap_in_loop=True)
+    
+    def disconnect_data_ready_slots(self):
         self.data_ready.disconnect_all()
+        
+class QStreamHandler(QThread, BasicStreamHandler):
+    data_ready = pyqtSignal(DataFromAcquisition)
+    def __init__(self)->None:
+        QThread.__init__(self)
+        BasicStreamHandler.__init__(self)
+        self.is_running = True
+    def run(self) -> None:
+        while self.is_running:
+            self.acquisition_task()
+        
+    def closeTread(self) -> None:
+        self.is_running = False
+        super().close()
+    
+    def disconnect_data_ready_slots(self):
+        self.data_ready.disconnect()
+        
+    
 #TEST
 ################################################################################
 
@@ -123,7 +151,8 @@ def test_stream( stream_class: Stream):
             self.lock_visualization = Lock()
             super().__init__()
             
-        def update(self,data: DataFromAcquisition):
+        @pyqtSlot(DataFromAcquisition)     
+        def update_images(self,data: DataFromAcquisition):
             with self.lock_visualization:
                 zmin, zmax = self.panel_visualization_range.get_range()
                 data = DataToShow(data_acquisition=data, zmin=zmin, zmax=zmax)
@@ -132,20 +161,19 @@ def test_stream( stream_class: Stream):
         
         def closeEvent(self, event) -> None:
             camera.close()
-            event_manager.stop()
+            stream_handler.closeTread()
             return super().closeEvent(event)
         
-        
-    event_manager = LoopEventManager(' event_manager')
-    event_manager.start()
+       
     app = QApplication(sys.argv)
     camera = stream_class()
-    stream_handler = StreamHandler(event_manager)
+    stream_handler = QStreamHandler()
     stream_handler.add_stream(camera)
     stream_handler.update_available_streams()
     stream_handler.set_stream(camera.name)
+    stream_handler.start()
     window = TestWindow()
     window.show()
-    stream_handler.data_ready.connect(window.update)
+    stream_handler.data_ready.connect(window.update_images)
     window.button_reconnect_stream.clicked.connect(lambda:stream_handler.set_stream())
     sys.exit(app.exec_())
