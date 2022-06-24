@@ -149,16 +149,18 @@ def test_stream( stream_class: Stream):
     from threading import Lock
     
     class TestWindow(PanelRGBDImage):
+        update_acquisition = pyqtSignal(DataToShow)
+        
         def __init__(self,parent: QWidget= None)->None:
             self.lock_visualization = Lock()
             super().__init__()
-            
+            self.update_acquisition.connect(self.update_rgbd)
         @pyqtSlot(DataFromAcquisition)     
         def update_images(self,data: DataFromAcquisition):
             with self.lock_visualization:
                 zmin, zmax = self.panel_visualization_range.get_range()
                 data = DataToShow(data_acquisition=data, zmin=zmin, zmax=zmax)
-                self.update_rgbd(data)
+                self.update_acquisition.emit(data)
                 
         
         def closeEvent(self, event) -> None:
@@ -176,7 +178,6 @@ def test_stream( stream_class: Stream):
     stream_handler.add_stream(camera)
     stream_handler.update_available_streams()
     stream_handler.set_stream(camera.name)
-   
     window = TestWindow()
     window.show()
     stream_handler.data_ready.connect(window.update_images)
