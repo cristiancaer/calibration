@@ -105,12 +105,13 @@ class SaveCheckingParallel(PanelToSave):
         if self.is_saving:
             self.save_handler.add_new(data_to_save)
         
-        if self.dataset_type != DATASET_TYPES.MILL:
-            self.is_saving = False
+            if self.dataset_type != DATASET_TYPES.MILL:
+                self.change_status_saving()
     
     def change_status_saving(self):
         self.is_saving = not self.is_saving
-        self.button_save.set_pressed(self.is_saving)
+        if self.dataset_type == DATASET_TYPES.MILL:
+            self.button_save.set_pressed(self.is_saving)
     
     def new_dataset(self):
         self.is_saving = False
@@ -160,7 +161,7 @@ if __name__=='__main__':
     stream_handler.update_available_streams()
     stream_handler.set_stream(stream.name)
     app = QApplication(sys.argv)
-    window = SaveCheckingParallel(stream_handler,save_handler,None,DATASET_TYPES.MILL, TEST_PATH,[100,100],[-100,-100] )# Test with area
+    window = SaveCheckingParallel(stream_handler,save_handler,None,DATASET_TYPES.Z_CALIBRATION, TEST_PATH,[100,100],[-100,-100] )# Test with area
     window.show()
     app.exec_()
     event_manager.stop()
