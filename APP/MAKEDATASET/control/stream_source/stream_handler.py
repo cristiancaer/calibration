@@ -1,10 +1,11 @@
+from asyncio import events
 import traceback
 import sys
 from typing import Dict, List
 from time import sleep
 from PyQt5.QtCore import QThread, pyqtSignal, pyqtSlot
 sys.path.append('./')
-from APP.MAKEDATASET.control.loop_event_manager import LoopEventManager, SignalHandler
+from APP.MAKEDATASET.control.loop_event_manager.futures_event_manager import FuturesLoopEventManager, SignalHandler
 from APP.MAKEDATASET.models.data_objects import DataFromAcquisition, DataToShow
 from APP.MAKEDATASET.control.stream_source import Stream
 
@@ -111,7 +112,7 @@ class BasicStreamHandler:
         pass
     
 class StreamHandler(BasicStreamHandler):
-    def __init__(self, event_manager: LoopEventManager)->None:
+    def __init__(self, event_manager: FuturesLoopEventManager)->None:
         super().__init__()
         self.data_ready = SignalHandler('data_ready', DataFromAcquisition)
         event_manager.add_signal_handler(self.data_ready)
@@ -126,6 +127,7 @@ class QStreamHandler(QThread, BasicStreamHandler):
         QThread.__init__(self)
         BasicStreamHandler.__init__(self)
         self.is_running = True
+        
     def run(self) -> None:
         while self.is_running:
             self.acquisition_task()
@@ -161,17 +163,20 @@ def test_stream( stream_class: Stream):
         
         def closeEvent(self, event) -> None:
             camera.close()
-            stream_handler.closeTread()
+            stream_handler.close()
+            event_manager.stop()
             return super().closeEvent(event)
         
        
     app = QApplication(sys.argv)
+    event_manager = FuturesLoopEventManager('event manager')
+    event_manager.start()
     camera = stream_class()
-    stream_handler = QStreamHandler()
+    stream_handler = StreamHandler(event_manager)
     stream_handler.add_stream(camera)
     stream_handler.update_available_streams()
     stream_handler.set_stream(camera.name)
-    stream_handler.start()
+   
     window = TestWindow()
     window.show()
     stream_handler.data_ready.connect(window.update_images)
