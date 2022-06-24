@@ -1,5 +1,6 @@
 from typing import List
 from PyQt5.QtWidgets import QWidget, QApplication
+from PyQt5.QtCore import pyqtSignal, pyqtSlot
 from threading import Lock
 import sys
 sys.path.append('./')
@@ -11,11 +12,17 @@ from APP.MAKEDATASET.control.check_parallel.through_square import ThroughSquare
 from APP.MAKEDATASET.models.data_objects import DATASET_TYPES, DataFromAcquisition, DataToSave
 from APP.MAKEDATASET.views.draw_tools.draw_over_data_to_show import DrawDataToShow
 from APP.MAKEDATASET.control.stream_source.stream_handler import StreamHandler
-from APP.MAKEDATASET.control.loop_event_manager import LoopEventManager
+from APP.MAKEDATASET.control.loop_event_manager.futures_event_manager import FuturesLoopEventManager
 from APP.MAKEDATASET.models import TEST_PATH
 
+
 class SaveCheckingParallel(PanelToSave):
+    
     name = "save"
+    update_images = pyqtSignal(DrawDataToShow)# to update the gui from the FuturesLoopEventManager could cause the GUI crash.
+    # then the task-thread(from FuturesLoopEventManager) process the images and emit the update_images(pyqtSignal).
+    # this will execute the update-visualization-task inside of the QTloopEventManager own of the QtAPP
+    
     def __init__(self,stream_handler: StreamHandler, save_handler:SaveHandler, lock_visualization: Lock = None, type_dataset:str = None, path: str= '', top_point: List[int]= None, bottom_point: List[int]= None, parent: QWidget=None):
         """app to save images checking that the flat surface is parallel to the camera
 
@@ -90,7 +97,7 @@ class SaveCheckingParallel(PanelToSave):
             data_to_show.draw_parallel_information(y_status, x_status)
             data_to_show.draw_rectangle(self.check_parallel.top_point[::-1], self.check_parallel.bottom_point[::-1])# original are in array index reference [row, column]. draw has [x,y] index reference
         with self.lock_visualization:
-            self.panel_rgb_d.update_rgbd(data_to_show)
+            self.update_images.emit(data_to_show)
     
     def save_images(self, data:DataFromAcquisition)->None:
         """ slot to stream_handler.data_ready"""
@@ -117,6 +124,11 @@ class SaveCheckingParallel(PanelToSave):
     def connect_stream(self):
         self.stream_handler.data_ready.connect(self.process_images)
         self.stream_handler.data_ready.connect(self.save_images)
+        self.update_images.connect(self.panel_rgb_d.update_rgbd)
+    
+    def disconnect_stream(self):
+        self.stream_handler.disconnect_data_ready_slots()
+        self.update_images.disconnect()
         
     def closeEvent(self, event) -> None:
         self.stream_handler.close()
@@ -139,7 +151,7 @@ class SaveCheckingParallel(PanelToSave):
 #TEST
 ################################################################################
 if __name__=='__main__':
-    event_manager = LoopEventManager('event_manger')
+    event_manager = FuturesLoopEventManager('event_manger')
     event_manager.start()
     stream_handler = StreamHandler(event_manager)
     save_handler = SaveHandler(event_manager)

@@ -10,7 +10,7 @@ from APP.MAKEDATASET.models.data_objects import DATASET_TYPES, DatasetTypes
 from APP.MAKEDATASET.views.stack import StackWidget
 from APP.MAKEDATASET.control.app_panels.setup_mill import MillSetup
 from APP.MAKEDATASET.control.app_panels.save_checking_parallel import SaveCheckingParallel
-from APP.MAKEDATASET.control.loop_event_manager.pyqt_event_manager import QEventManager
+from APP.MAKEDATASET.control.loop_event_manager.futures_event_manager import FuturesLoopEventManager
 from APP.MAKEDATASET.control.stream_source.stream_handler import StreamHandler
 from APP.MAKEDATASET.control.save_pair_images import SaveHandler
 
@@ -113,7 +113,7 @@ class MainWindow(StackWidget):
 ################################################################################
 if __name__=='__main__':
     from PyQt5.QtWidgets import QApplication
-    event_manager = QEventManager('event_manager')
+    event_manager = FuturesLoopEventManager('event_manager')
     event_manager.start()
     stream_handler = StreamHandler(event_manager)
     save_handler = SaveHandler(event_manager)

@@ -1,3 +1,4 @@
+from tkinter.messagebox import NO
 from typing import Tuple
 from PyQt5.QtWidgets import QWidget,QGridLayout, QApplication, QGroupBox, QHBoxLayout
 import sys
@@ -71,7 +72,8 @@ class PanelRGBDImage(QWidget):
         """
         self.panel_rgb.update_image(data_to_show.rgb)
         self.panel_depth.update_image(data_to_show.depth)
-        self.update_fps(data_to_show.fps)
+        if data_to_show.fps is not None:
+            self.update_fps(data_to_show.fps)
         
     def set_dark_images(self):
         """

@@ -1,11 +1,12 @@
 from time import sleep
 from typing import List
 from PyQt5.QtWidgets import  QApplication
+from PyQt5.QtCore import pyqtSignal, pyqtSlot
 from threading import Lock
 import sys
 sys.path.append('./')
 from APP.MAKEDATASET.control.stream_source.stream_handler import StreamHandler
-from APP.MAKEDATASET.control.loop_event_manager import LoopEventManager
+from APP.MAKEDATASET.control.loop_event_manager.futures_event_manager import FuturesLoopEventManager
 from APP.MAKEDATASET.control.stream_source.test import ImageGenerator
 from APP.MAKEDATASET.control.stream_source.intel_455 import Intel455
 from APP.MAKEDATASET.control.check_parallel.through_plane import ThroughPlane
@@ -16,7 +17,12 @@ from APP.MAKEDATASET.models.draw_objects import PointsStore, LineStore
 
 
 class MillSetup(PanelMillSetup):
+    
     name = 'mill setup'
+    update_images = pyqtSignal(DrawDataToShow)# to update the gui from the FuturesLoopEventManager could cause the GUI crash.
+    # then the task-thread(from FuturesLoopEventManager) process the images and emit the update_images(pyqtSignal).
+    # this will execute the update-visualization-task inside of the QTloopEventManager own of the QtAPP
+    
     def __init__(self, stream_handler: StreamHandler, lock_visualization: Lock = None,parent= None)->None:
         self.stream_handler = stream_handler
         if lock_visualization is not  None:
@@ -65,7 +71,7 @@ class MillSetup(PanelMillSetup):
         if self.right_line.is_full:
             data_to_show.draw_line_over(self.right_line.points, in_rgb= True)
         with self.lock_visualization:
-            self.update_rgbd(data_to_show)
+            self.update_images.emit(data_to_show)
         self.last_data = data
     
     def process_screenshot(self):
@@ -156,6 +162,11 @@ class MillSetup(PanelMillSetup):
     
     def connect_stream(self):
         self.stream_handler.data_ready.connect(self.process_images)
+        self.update_images.connect(self.update_rgbd)
+        
+    def disconnect_stream(self):
+        self.stream_handler.disconnect_data_ready_slots()
+        self.update_images.disconnect()
 
     def closeEvent(self, event) -> None:
         self.stream_handler.close()
@@ -172,12 +183,12 @@ class MillSetup(PanelMillSetup):
     def paintEvent(self, event) -> None:
         with self.lock_visualization:
             super().paintEvent(event)
-        
+    
         
 #TEST
 ################################################################################
 if __name__=='__main__':
-    event_manager = LoopEventManager('event_manger')
+    event_manager = FuturesLoopEventManager('event_manger')
     event_manager.start()
     stream_handler = StreamHandler(event_manager)
     stream_class = ImageGenerator()
