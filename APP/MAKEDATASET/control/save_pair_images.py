@@ -18,7 +18,7 @@ class SaveHandler():
             datetime_index (bool, optional): optional in constructor but required to save. if data_index = False the object will use a int as index_name of the image, if datetime_index = True, the object will use the hour as index_name Defaults to False.
         """
         super().__init__()
-        self.SIZE_BUFFER = 500
+        self.SIZE_BUFFER = 200
         self.set_index_type(datetime_index)
         self.set_path(path)
         self.index = 0
@@ -67,10 +67,11 @@ class SaveHandler():
                 ret = cv2.imwrite(path_name, image)
             
             size_buffer = self.queue.qsize()
-            if size_buffer > self.SIZE_BUFFER/2 and not self.saturated:
-                self.saturation_times += 1
+            if (size_buffer > self.SIZE_BUFFER/2) and (not self.saturated):
                 self.saturated = True
-            else:
+                self.saturation_times += 1
+               
+            elif(size_buffer < self.SIZE_BUFFER/2):
                 self.saturated = False
             
             last_index = None
