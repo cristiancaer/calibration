@@ -2,6 +2,7 @@ from typing import List
 from PyQt5.QtWidgets import QWidget, QApplication
 from PyQt5.QtCore import pyqtSignal, pyqtSlot
 from threading import Lock
+from datetime import datetime
 import sys
 sys.path.append('./')
 from APP.MAKEDATASET.views.panel_to_save import PanelToSave
@@ -9,7 +10,7 @@ from APP.MAKEDATASET.control.stream_source.test import ImageGenerator
 from APP.MAKEDATASET.control.stream_source.intel_455 import Intel455
 from APP.MAKEDATASET.control.save_pair_images import SaveHandler
 from APP.MAKEDATASET.control.check_parallel.through_square import ThroughSquare
-from APP.MAKEDATASET.models.data_objects import DATASET_TYPES, DataFromAcquisition, DataToSave
+from APP.MAKEDATASET.models.data_objects import DATASET_TYPES, DataFromAcquisition, DataToSave, SavedInfo
 from APP.MAKEDATASET.views.draw_tools.draw_over_data_to_show import DrawDataToShow
 from APP.MAKEDATASET.control.stream_source.stream_handler import StreamHandler
 from APP.MAKEDATASET.control.loop_event_manager.futures_event_manager import FuturesLoopEventManager
@@ -19,9 +20,10 @@ from APP.MAKEDATASET.models import TEST_PATH
 class SaveCheckingParallel(PanelToSave):
     
     name = "save"
-    update_images = pyqtSignal(DrawDataToShow)# to update the gui from the FuturesLoopEventManager could cause the GUI crash.
-    # then the task-thread(from FuturesLoopEventManager) process the images and emit the update_images(pyqtSignal).
+    signal_update_images = pyqtSignal(DrawDataToShow)# to update the gui from the FuturesLoopEventManager could cause the GUI crash.
+    # then the task-thread(from FuturesLoopEventManager) process the images and emit the signal_update_images(pyqtSignal).
     # this will execute the update-visualization-task inside of the QTloopEventManager own of the QtAPP
+    signal_update_saved_info = pyqtSignal(SavedInfo)
     
     def __init__(self,stream_handler: StreamHandler, save_handler:SaveHandler, lock_visualization: Lock = None, type_dataset:str = None, path: str= '', top_point: List[int]= None, bottom_point: List[int]= None, parent: QWidget=None):
         """app to save images checking that the flat surface is parallel to the camera
@@ -58,13 +60,16 @@ class SaveCheckingParallel(PanelToSave):
         self.panel_rgb_d.button_reconnect_stream.clicked.connect(self.stream_handler.set_stream)
         
         # save config
-        
         self.button_save.clicked.connect(self.change_status_saving)
-        self.save_handler.last_index.connect(self.line_edit_last_saved.update_text)
-        
+        self.save_handler.saved_info.connect(self.bridge_update_saved_info)# bridge with pyqtSignal
+        self.signal_update_saved_info.connect(self.update_saved_info)
         # check config
         self.update_parallel_checking(top_point, bottom_point)
         # check threshold
+    
+    def bridge_update_saved_info(self, saved_info: SavedInfo):
+        saved_info.first_saved = self.start_saving_time
+        self.signal_update_saved_info.emit(saved_info)
         
     def update_parallel_checking(self, top_point: List[int], bottom_point: List[int]):
         """
@@ -73,7 +78,9 @@ class SaveCheckingParallel(PanelToSave):
         
         """
         self.check_parallel = ThroughSquare(top_point=top_point, bottom_point= bottom_point, threshold=20, line_width= 15)
-         
+    
+
+        
     def update_save_info(self, dataset_type:str , path: str):
         """ update visualization info of the saving process"""
         self.dataset_type = dataset_type
@@ -97,7 +104,7 @@ class SaveCheckingParallel(PanelToSave):
             data_to_show.draw_parallel_information(y_status, x_status)
             data_to_show.draw_rectangle(self.check_parallel.top_point[::-1], self.check_parallel.bottom_point[::-1])# original are in array index reference [row, column]. draw has [x,y] index reference
         with self.lock_visualization:
-            self.update_images.emit(data_to_show)
+            self.signal_update_images.emit(data_to_show)
     
     def save_images(self, data:DataFromAcquisition)->None:
         """ slot to stream_handler.data_ready"""
@@ -110,6 +117,8 @@ class SaveCheckingParallel(PanelToSave):
     
     def change_status_saving(self):
         self.is_saving = not self.is_saving
+        if self.is_saving:
+            self.start_saving_time = datetime.now().strftime('%H_%M_%S')# only milliseconds
         if self.dataset_type == DATASET_TYPES.MILL:
             self.button_save.set_pressed(self.is_saving)
     
@@ -125,11 +134,11 @@ class SaveCheckingParallel(PanelToSave):
     def connect_stream(self):
         self.stream_handler.data_ready.connect(self.process_images)
         self.stream_handler.data_ready.connect(self.save_images)
-        self.update_images.connect(self.panel_rgb_d.update_rgbd)
+        self.signal_update_images.connect(self.panel_rgb_d.update_rgbd)
     
     def disconnect_stream(self):
         self.stream_handler.disconnect_data_ready_slots()
-        self.update_images.disconnect()
+        self.signal_update_images.disconnect()
         
     def closeEvent(self, event) -> None:
         self.stream_handler.close()

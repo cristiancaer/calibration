@@ -1,10 +1,10 @@
-from PyQt5.QtWidgets import QWidget, QGridLayout
+from PyQt5.QtWidgets import QWidget, QGridLayout, QGroupBox, QHBoxLayout
 import sys
 sys.path.append('./')
 from APP.MAKEDATASET.views.basic import  CustomLineEdit
 from APP.MAKEDATASET.views.panel_rgbd_images import PanelRGBDImage
 from APP.MAKEDATASET.views.basic.buttons import BasicButton
-from APP.MAKEDATASET.models.data_objects import DATASET_TYPES
+from APP.MAKEDATASET.models.data_objects import DATASET_TYPES, SavedInfo
 
         
 class PanelToSave(QWidget):
@@ -29,13 +29,30 @@ class PanelToSave(QWidget):
         layout = QGridLayout(self)
         self.buttom_new_dataset = BasicButton('New Dataset', 'SP_BrowserReload')
         self.button_save = BasicButton('')
+        
+        group_save_inf = QGroupBox()
+        layout_save_inf = QHBoxLayout(group_save_inf)
         self.line_edit_last_saved = CustomLineEdit(self.path)
+        layout_save_inf.addWidget(self.line_edit_last_saved)
+        self.line_edit_first_saved = CustomLineEdit('First saved')
+        layout_save_inf.addWidget(self.line_edit_first_saved)
+        self.line_edit_size_buffer = CustomLineEdit('Buffer Size')
+        layout_save_inf.addWidget(self.line_edit_size_buffer)
+        self.line_edit_saturation_times = CustomLineEdit('Saturation times')
+        layout_save_inf.addWidget(self.line_edit_saturation_times)
+        
         self.panel_rgb_d = PanelRGBDImage()
         layout.addWidget(self.buttom_new_dataset)
         layout.addWidget(self.button_save)
-        layout.addWidget(self.line_edit_last_saved)
+        layout.addWidget(group_save_inf)
         layout.addWidget(self.panel_rgb_d)
         self.normal_style = self.button_save.style()
+    
+    def update_saved_info(self, saved_info: SavedInfo):
+        self.line_edit_last_saved.update_text(saved_info.last_saved)
+        self.line_edit_first_saved.update_text(saved_info.first_saved)
+        self.line_edit_size_buffer.update_text(saved_info.buffer_size)
+        self.line_edit_saturation_times.update_text(saved_info.saturation_times)
         
     def update_button_save(self, type_datset: str)-> str:
         save_title = ' TakeScreamshot'

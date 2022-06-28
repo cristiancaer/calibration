@@ -2,7 +2,7 @@ from APP.MAKEDATASET.views import depth2color
 from APP.MAKEDATASET.models import HOUR_FORMAT, RGB_PREFIX, DEPTH_PREFIX, ZMAX, ZMIN
 from typing import Dict, List, Any, Tuple
 import numpy as np
-from datetime import datetime
+from datetime import date, datetime
 import sys
 sys.path.append('./')
 
@@ -35,6 +35,13 @@ class DataToSave:
     def add_img(self, name: str, img: np.ndarray):
         if isinstance(img, np.ndarray):
             self.data.update({name: img})
+
+class SavedInfo:
+    def __init__(self, last_saved:str, buffer_size:int, saturation_times:int, first_saved=0)->None:
+        self.last_saved = last_saved
+        self.first_saved = str(first_saved)
+        self.buffer_size = str(buffer_size)
+        self.saturation_times = str(saturation_times)
 
 
 class InclinationStatus:

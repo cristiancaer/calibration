@@ -2,7 +2,7 @@ from queue import Queue
 import sys
 import cv2
 sys.path.append('./')
-from APP.MAKEDATASET.models.data_objects import DataFromAcquisition, DataToSave
+from APP.MAKEDATASET.models.data_objects import DataFromAcquisition, DataToSave, SavedInfo
 from APP.MAKEDATASET.control.loop_event_manager import LoopEventManager, SignalHandler
 
 
@@ -18,15 +18,20 @@ class SaveHandler():
             datetime_index (bool, optional): optional in constructor but required to save. if data_index = False the object will use a int as index_name of the image, if datetime_index = True, the object will use the hour as index_name Defaults to False.
         """
         super().__init__()
+        self.SIZE_BUFFER = 500
         self.set_index_type(datetime_index)
         self.set_path(path)
         self.index = 0
-        self.queue = Queue(500)
+        self.queue = Queue(self.SIZE_BUFFER)
         self.is_running = True
         self.FORMAT = '.png'
-        self.last_index = SignalHandler('last_saved_image_index', str)
-        event_manager.add_signal_handler(self.last_index)
+        self.saturation_times = 0
+        self.saturated = False
+        self.last_size_buffer = None
+        self.saved_info = SignalHandler('last_saved_image_index', SavedInfo)
+        event_manager.add_signal_handler(self.saved_info)
         event_manager.emit_function_only_once(self.loop_task, wrap_in_loop= True)
+        
         
     def add_new(self, data_to_save: DataToSave):
         """ add new data to stor in disc"""
@@ -60,8 +65,21 @@ class SaveHandler():
             for key, image in data_to_save.data.items():
                 path_name = f'{self.path}/{key}_{index}{self.FORMAT}'
                 ret = cv2.imwrite(path_name, image)
-            self.last_index.emit(index+self.FORMAT)
-    
+            
+            size_buffer = self.queue.qsize()
+            if size_buffer > self.SIZE_BUFFER/2 and not self.saturated:
+                self.saturation_times += 1
+                self.saturated = True
+            else:
+                self.saturated = False
+            
+            last_index = None
+            if ret:
+                last_index = index[11:-3] if self.use_datetime_index else index# only hours-minutes-milliseconds
+            
+            saved_info = SavedInfo(last_index, size_buffer,self.saturation_times)
+            self.saved_info.emit(saved_info)
+
     def close(self):
         self.is_running = False
         self.queue.put(None)

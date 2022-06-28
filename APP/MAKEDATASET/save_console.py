@@ -1,20 +1,18 @@
-from curses import window
 import sys
 sys.path.append('./')
 from APP.MAKEDATASET.control.stream_source.intel_455 import Intel455, Stream
 from APP.MAKEDATASET.control.stream_source.orbbec import Orbbec
 from APP.MAKEDATASET.control.stream_source.stream_handler import StreamHandler
-from APP.MAKEDATASET.control.loop_event_manager import LoopEventManager
+from APP.MAKEDATASET.control.loop_event_manager.futures_event_manager import FuturesLoopEventManager
 from APP.MAKEDATASET.control.save_pair_images import SaveHandler
-from APP.MAKEDATASET.models.data_objects import DataFromAcquisition, DataToSave
+from APP.MAKEDATASET.models.data_objects import DataFromAcquisition, DataToSave, SavedInfo
 import os
-from PyQt5.QtWidgets import QFileDialog, QApplication
 from time import sleep
 from tkinter import filedialog
 
 class Save:
     def __init__(self, stream_class:Stream, path:str)->None:
-        self.event_manager = LoopEventManager('event_manager')
+        self.event_manager = FuturesLoopEventManager('event_manager')
         self.stream_handler = StreamHandler(self.event_manager)
         camera = stream_class()
         self.stream_handler.add_stream(camera, check_is_available=True)
@@ -23,7 +21,7 @@ class Save:
         self.first_saved = None
         
         self.save_handler = SaveHandler(self.event_manager, path, datetime_index=True)
-        self.save_handler.last_index.connect(self.console)
+        self.save_handler.saved_info.connect(self.console)
         self.fps = 0
         self.buffer_saturation_times = 0
         self.last_size = 0
@@ -32,19 +30,16 @@ class Save:
         self.save_handler.add_new(data_to_save)
         self.fps = data.fps
         
-    def console(self, last_saved:str):
+    def console(self, saved_info:SavedInfo):
         if self.first_saved is None:
-            self.first_saved = last_saved
-        if self.save_handler.queue.qsize()>=100 and self.last_size<100:
-            self.buffer_saturation_times +=1
-        self.last_size = self.save_handler.queue.qsize()
+            self.first_saved = saved_info.last_saved
         os.system('clear')
-        print(f'fps: {self.fps: .2f}; buffer to save: {self.last_size}; saturation times:{self.buffer_saturation_times}')
+        print(f'fps: {self.fps: .2f}; buffer to save: {saved_info.buffer_size}; saturation times:{saved_info.saturation_times}')
         
         print('first saved')
         print(self.first_saved)
         print(f'last saved')
-        print(last_saved)
+        print(saved_info.last_saved)
     
     def start(self):
         self.event_manager.start()
