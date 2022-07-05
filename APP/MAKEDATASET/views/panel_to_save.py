@@ -14,7 +14,7 @@ class PanelToSave(QWidget):
         """panel to show and save rgb-d pair image 
 
         Args:
-            type_dataset (str): to change the buttom-save description
+            type_dataset (str): to change the bottom-save description
             path (str): to indicate where te images are 
             parent (QWidget, optional): _description_. Defaults to None.
         """
@@ -55,7 +55,7 @@ class PanelToSave(QWidget):
         self.line_edit_saturation_times.update_text(saved_info.saturation_times)
         
     def update_button_save(self, type_datset: str)-> str:
-        save_title = ' TakeScreamshot'
+        save_title = ' TakeScreenshot'
         if type_datset == DATASET_TYPES.MILL:
             save_title = 'Save'
             

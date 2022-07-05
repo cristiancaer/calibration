@@ -2,6 +2,7 @@ from PyQt5.QtWidgets import  QWidget
 import sys
 from threading import Lock
 sys.path.append('./')
+from APP.MAKEDATASET.control.loop_event_manager import LoopEventManager
 from APP.MAKEDATASET.views.panel_basic_config import PanelBasicConfig
 from APP.MAKEDATASET.control.stream_source.intel_455 import Intel455
 from APP.MAKEDATASET.control.stream_source.orbbec import Orbbec
@@ -15,11 +16,11 @@ from APP.MAKEDATASET.control.stream_source.stream_handler import StreamHandler
 from APP.MAKEDATASET.control.save_pair_images import SaveHandler
 
 
-class MainWindow(StackWidget):
-    def __init__(self,stream_handler: StreamHandler, save_handler:SaveHandler, window_name = '', parent: QWidget=None):
+class MakeDataset(StackWidget):
+    def __init__(self, event_manager: LoopEventManager, window_name = '', parent: QWidget=None):
         self.lock_visualization = Lock()
-        self.stream_handler = stream_handler
-        self.save_handler = save_handler
+        self.stream_handler = StreamHandler(event_manager)
+        self.save_handler = SaveHandler(event_manager)
         self.window_name = window_name
         super().__init__(parent)
         self.init_gui()
@@ -115,10 +116,9 @@ if __name__=='__main__':
     from PyQt5.QtWidgets import QApplication
     event_manager = FuturesLoopEventManager('event_manager')
     event_manager.start()
-    stream_handler = StreamHandler(event_manager)
-    save_handler = SaveHandler(event_manager)
     app = QApplication(sys.argv)
-    window = MainWindow( stream_handler, save_handler, 'Make Dataset')
+    window = MakeDataset(event_manager, 'Make Dataset')
+    window.panel_save.update_parallel_checking(top_point=[100,100], bottom_point=[-100,-100])#checking trough square
     window.show()
     app.exec_()
     event_manager.stop()

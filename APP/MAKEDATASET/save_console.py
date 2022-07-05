@@ -54,7 +54,7 @@ class Save:
 ################################################################################
 if __name__=='__main__':
     path = '/home/ingelec2/Desktop/flujoBagazo/codigo/app_calibration/test/'
-    path = '/home/estufab4/Desktop/flujoBagazo/codigo/app_calibration/test/'
+    # path = '/home/estufab4/Desktop/flujoBagazo/codigo/app_calibration/test/'
     # path = filedialog.askdirectory(initialdir='/home/ingelec2/Desktop/', title='Select directory')
     print(path)
     save = Save(Intel455, path)

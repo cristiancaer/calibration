@@ -11,19 +11,19 @@ class ThroughSquare:
         """
             To check how much camera-axis (Y and X) are parallel to a flat surface
     
-            To avoid X axis influence over Y axis, each column has its minimun value subtracted from it
+            To avoid X axis influence over Y axis, each column has its minimum value subtracted from it
             
-            To avoid Y axis influence over X axis, each row has its minimun value subtracted from it
+            To avoid Y axis influence over X axis, each row has its minimum value subtracted from it
             
             With 2 points, top_point and bottom_point, will have in mind a square with a  given line_width_line
             
-            check axis-X variation: given mean_lef and mean_right the mean value of the each vertcal line of the square, then x variation, variation_x =   mean_right  -mean_lef
+            check axis-X variation: given mean_lef and mean_right the mean value of the each vertical line of the square, then x variation, variation_x =   mean_right  -mean_lef
             
-            if |variation_x| > Threshold there will be an inclnation.   variation_x > 0 leftward inclination, variation_x< 0 rightward inclination
+            if |variation_x| > Threshold there will be an inclination.   variation_x > 0 leftward inclination, variation_x< 0 rightward inclination
             
             check axis Y variation: the same as X but with the horizontal line of the square. variation_y = mean_top -mean_bottom
             
-            if |variation_y| > Threshold there will be an inclnation.   variation_y > 0 topward inclination, variation_y< 0 bottomward inclination
+            if |variation_y| > Threshold there will be an inclination.   variation_y > 0 upward inclination, variation_y< 0 downward inclination
             
             EG.
             
@@ -33,7 +33,7 @@ class ThroughSquare:
             
             | 7 8 9 |
             
-            use normal-Y to know Y variation. subtract the minimun value of each column
+            use normal-Y to know Y variation. subtract the minimum value of each column
             
             | 0 0 0 |
             
@@ -41,7 +41,7 @@ class ThroughSquare:
             
             | 6 6 6 |
             
-            use normal-X to know X variation. Subtract the minimun value of each row
+            use normal-X to know X variation. Subtract the minimum value of each row
             
             | 0 1 2 |
             
@@ -51,8 +51,8 @@ class ThroughSquare:
             
 
         Args:
-            top_point (Tuple[int]): left-top point of the cosidered square, array index reference. [row,column]
-            bottom_point (Tuple[int]): right-bottom point of the cosidered square. [row, column]
+            top_point (Tuple[int]): left-top point of the considered square, array index reference. [row,column]
+            bottom_point (Tuple[int]): right-bottom point of the considered square. [row, column]
             line_width (int): square width line
             threshold (float): thread to consider where there are an inclination
         """
@@ -62,9 +62,9 @@ class ThroughSquare:
         self.threshold = threshold
     
     def check(self, depth_image: np.ndarray)-> Tuple[InclinationStatus]:
-        """check if camara is parallel  to a flat surface
-        the found variation is the total variation betwin the sides of the square. this is
-        different from the delta variation, variation betwin columns of rows 
+        """check if camera is parallel  to a flat surface
+        the found variation is the total variation between the sides of the square. this is
+        different from the delta variation, variation between columns of rows 
 
         Args:
             depth_image (np.ndarray): one chanel  depth image
@@ -72,9 +72,9 @@ class ThroughSquare:
         Returns:
             Tuple[InclinationStatus]: object to indicate inclination status.
         """
-        # avoid X axis influence over Y axis. normal_y,  each column has its minimun value subtracted from it
+        # avoid X axis influence over Y axis. normal_y,  each column has its minimum value subtracted from it
         normal_y = depth_image.copy()- depth_image.min(axis=0)
-        # avoid Y axis influence over X axis. normal_x,  each row has its minimun value subtracted from it
+        # avoid Y axis influence over X axis. normal_x,  each row has its minimum value subtracted from it
         normal_x = depth_image.copy()- depth_image.min(axis=1).reshape(-1, 1)# -  column vector
         # use vertical lines to get x variation
         left_vertical = normal_x[ : , self.top_point[1]:self.top_point[1]+self.line_width]
