@@ -1,5 +1,5 @@
 from APP.MAKEDATASET.views import depth2color
-from APP.MAKEDATASET.models import HOUR_FORMAT, RGB_PREFIX, DEPTH_PREFIX, ZMAX, ZMIN
+from APP.models.basic_config import HOUR_FORMAT, RGB_PREFIX, DEPTH_PREFIX, ZMAX, ZMIN
 from typing import Dict, List, Any, Tuple
 import numpy as np
 from datetime import date, datetime

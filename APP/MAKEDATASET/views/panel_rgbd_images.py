@@ -6,7 +6,7 @@ import cv2
 sys.path.append('./')
 from APP.MAKEDATASET.views.basic.panel_one_image import PanelImage
 from APP.MAKEDATASET.views.basic import CustomSpinBox, LabelFont, CustomLabel
-from APP.MAKEDATASET.models import TEST_IMG, ZMIN, ZMAX
+from APP.models.basic_config import TEST_IMG, ZMIN, ZMAX
 from APP.MAKEDATASET.models.data_objects import DataFromAcquisition, DataToShow
 from APP.MAKEDATASET.views.basic.buttons import BasicButton
 

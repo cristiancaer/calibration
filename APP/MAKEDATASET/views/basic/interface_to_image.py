@@ -1,11 +1,10 @@
-from APP.MAKEDATASET.models import TEST_IMG
+import sys
+sys.path.append('./')
 from APP.MAKEDATASET.views import depth2color
 from PyQt5.QtGui import QPixmap, QImage
 import cv2
 import numpy as np
 from PyQt5.QtCore import Qt
-import sys
-sys.path.append('./')
 
 
 class InterfaceForImage():

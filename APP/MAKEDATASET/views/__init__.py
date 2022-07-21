@@ -2,7 +2,7 @@ import numpy as np
 import cv2
 import sys
 sys.path.append('./')
-from APP.MAKEDATASET.models import ZMAX, ZMIN
+from APP.models.basic_config import ZMAX, ZMIN
 
 
 def depth2color(depth_img: np.ndarray, zmin: int = ZMIN, zmax: int = ZMAX) -> np.ndarray:

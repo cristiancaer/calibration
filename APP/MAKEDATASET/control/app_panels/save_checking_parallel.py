@@ -14,7 +14,7 @@ from APP.MAKEDATASET.models.data_objects import DATASET_TYPES, DataFromAcquisiti
 from APP.MAKEDATASET.views.draw_tools.draw_over_data_to_show import DrawDataToShow
 from APP.MAKEDATASET.control.stream_source.stream_handler import StreamHandler
 from APP.MAKEDATASET.control.loop_event_manager.futures_event_manager import FuturesLoopEventManager
-from APP.MAKEDATASET.models import TEST_PATH
+from APP.models.basic_config import TEST_PATH
 
 
 class SaveCheckingParallel(PanelToSave):

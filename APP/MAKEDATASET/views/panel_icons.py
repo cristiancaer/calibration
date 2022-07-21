@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import QWidget, QGridLayout, QApplication, QSizePolicy, QSp
 import sys
 sys.path.append('./')
 from APP.MAKEDATASET.views.basic.label_for_image import LabelForImage
-from APP.MAKEDATASET.models import CC_ICON_PATH
+from APP.models.basic_config import CC_ICON_PATH
 
 
 class PanelIcons(QWidget):

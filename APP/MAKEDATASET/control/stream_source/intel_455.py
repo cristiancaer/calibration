@@ -9,7 +9,7 @@ import sys
 sys.path.append('./')
 from APP.MAKEDATASET.control.stream_source import Stream
 from APP.MAKEDATASET.models.data_objects import DataFromAcquisition
-from APP.MAKEDATASET.models import IMAGE_SHAPE
+from APP.models.basic_config import IMAGE_SHAPE
 import traceback
 from time import time
 

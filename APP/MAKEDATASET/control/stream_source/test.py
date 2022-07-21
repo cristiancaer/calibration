@@ -1,7 +1,7 @@
 import sys
 from time import sleep
 sys.path.append('./')
-from APP.MAKEDATASET.models import  RGB_PREFIX, DEPTH_PREFIX, TEST_IMG_PATH
+from APP.models.basic_config import  RGB_PREFIX, DEPTH_PREFIX, TEST_IMG_PATH
 from APP.MAKEDATASET.models.data_objects import DataFromAcquisition
 from APP.MAKEDATASET.control.stream_source import Stream
 from typing import List, Tuple
