@@ -2,7 +2,7 @@ from typing import List
 from PyQt5.QtWidgets import QComboBox, QWidget, QVBoxLayout, QPushButton
 import sys
 sys.path.append('./')
-from APP.MAKEDATASET.views.basic.card_template import CardTemplate
+from APP.views.basic.card_template import CardTemplate
 
 class PanelSelectCamera(CardTemplate):
     name = 'select_camera'

@@ -1,9 +1,9 @@
 from PyQt5.QtWidgets import QWidget, QGridLayout, QGroupBox, QHBoxLayout
 import sys
 sys.path.append('./')
-from APP.MAKEDATASET.views.basic import  CustomLineEdit
+from APP.views.basic import  CustomLineEdit
 from APP.MAKEDATASET.views.panel_rgbd_images import PanelRGBDImage
-from APP.MAKEDATASET.views.basic.buttons import BasicButton
+from APP.views.basic.buttons import BasicButton
 from APP.MAKEDATASET.models.data_objects import DATASET_TYPES, SavedInfo
 
         

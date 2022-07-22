@@ -8,7 +8,7 @@ from APP.MAKEDATASET.control.stream_source.intel_455 import Intel455
 from APP.MAKEDATASET.control.stream_source.orbbec import Orbbec
 from APP.MAKEDATASET.control.stream_source.test import ImageGenerator
 from APP.MAKEDATASET.models.data_objects import DATASET_TYPES, DatasetTypes
-from APP.MAKEDATASET.views.stack import StackWidget
+from APP.views.basic.stack import StackWidget
 from APP.MAKEDATASET.control.app_panels.setup_mill import MillSetup
 from APP.MAKEDATASET.control.app_panels.save_checking_parallel import SaveCheckingParallel
 from APP.MAKEDATASET.control.loop_event_manager.futures_event_manager import FuturesLoopEventManager

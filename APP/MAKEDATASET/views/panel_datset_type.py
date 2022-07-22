@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QComboBox
 import sys
 sys.path.append('./')
-from APP.MAKEDATASET.views.basic.card_template import CardTemplate
+from APP.views.basic.card_template import CardTemplate
 from APP.MAKEDATASET.models.data_objects import DATASET_TYPES
 
 class PanelDatasetType(CardTemplate):

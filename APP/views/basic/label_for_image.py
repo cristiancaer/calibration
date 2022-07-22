@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import  QApplication, QLabel
 import sys
 sys.path.append('./')
 from APP.models.basic_config import TEST_IMG
-from APP.MAKEDATASET.views.basic.interface_to_image import InterfaceForImage
+from APP.views.basic.interface_to_image import InterfaceForImage
 import numpy as np
 
 class LabelForImage(QLabel,InterfaceForImage):

@@ -2,8 +2,8 @@ from PyQt5.QtWidgets import QFileDialog, QLabel
 from PyQt5.QtCore import pyqtSlot,Qt
 import sys
 sys.path.append('./')
-from APP.MAKEDATASET.views.basic.card_template import CardTemplate
-from APP.MAKEDATASET.views.basic.buttons import ButtonGetDir
+from APP.views.basic.card_template import CardTemplate
+from APP.views.basic.buttons import ButtonGetDir
 
 
 class PanelChoosePath(CardTemplate):

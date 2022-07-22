@@ -3,8 +3,8 @@ import numpy as np
 import sys
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QApplication, QSizePolicy
 sys.path.append('./')
-from APP.MAKEDATASET.views.basic.label_for_image import LabelForImage
-from APP.MAKEDATASET.views.basic import CustomLabel
+from APP.views.basic.label_for_image import LabelForImage
+from APP.views.basic import CustomLabel
 from APP.models.basic_config import RGB_PREFIX, TEST_IMG
 from APP.MAKEDATASET.views.draw_tools.paint_canvas import CanvasImgShow
 

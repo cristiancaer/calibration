@@ -6,7 +6,7 @@ import cv2
 import numpy as np
 import sys
 sys.path.append('./')
-from APP.MAKEDATASET.views.basic.label_for_image import LabelForImage
+from APP.views.basic.label_for_image import LabelForImage
 from APP.MAKEDATASET.models.draw_objects import LineStore, PointsStore
 
 

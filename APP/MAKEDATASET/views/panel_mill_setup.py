@@ -6,8 +6,8 @@ from APP.MAKEDATASET.models.data_objects import DataFromAcquisition
 from APP.MAKEDATASET.views.draw_tools.draw_over_data_to_show import DrawDataToShow
 from APP.models.basic_config import  TEST_IMG
 from APP.MAKEDATASET.views.panel_rgbd_images import PanelRGBDImage
-from APP.MAKEDATASET.views.basic.buttons import BackNextButtons, BasicButton
-from APP.MAKEDATASET.views.basic import CustomLineEdit
+from APP.views.basic.buttons import BackNextButtons, BasicButton
+from APP.views.basic import CustomLineEdit
 
 
 class PanelMillSetup(PanelRGBDImage):

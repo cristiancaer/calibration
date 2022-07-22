@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QPushButton, QWidget, QStyle, QApplication, QVBoxLayout, QHBoxLayout
 import sys
 sys.path.append('./')
-from APP.MAKEDATASET.views.basic import CustomLabel,LabelFont
+from APP.views.basic import CustomLabel,LabelFont
 
 
 class BasicButton(QPushButton):

@@ -4,11 +4,11 @@ from PyQt5.QtWidgets import QWidget,QGridLayout, QApplication, QGroupBox, QHBoxL
 import sys
 import cv2
 sys.path.append('./')
-from APP.MAKEDATASET.views.basic.panel_one_image import PanelImage
-from APP.MAKEDATASET.views.basic import CustomSpinBox, LabelFont, CustomLabel
+from APP.views.basic.panel_one_image import PanelImage
+from APP.views.basic import CustomSpinBox, LabelFont, CustomLabel
 from APP.models.basic_config import TEST_IMG, ZMIN, ZMAX
 from APP.MAKEDATASET.models.data_objects import DataFromAcquisition, DataToShow
-from APP.MAKEDATASET.views.basic.buttons import BasicButton
+from APP.views.basic.buttons import BasicButton
 
 
 class PanelMinMaxEdit( QWidget):

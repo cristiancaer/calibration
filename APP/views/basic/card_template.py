@@ -2,8 +2,8 @@ from PyQt5.QtWidgets import QWidget, QApplication, QGridLayout, QSpacerItem, QSi
 from PyQt5.QtCore import Qt
 import sys
 sys.path.append('./')
-from APP.MAKEDATASET.views.basic import LabelFont
-from APP.MAKEDATASET.views.basic.buttons import BackNextButtons
+from APP.views.basic import LabelFont
+from APP.views.basic.buttons import BackNextButtons
 
 class CardTemplate(QWidget):
     def __init__(self, title: str, central_widget: QWidget= None, parent: QWidget= None):

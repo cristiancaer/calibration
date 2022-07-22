@@ -3,7 +3,7 @@ sys.path.append('./')
 from APP.MAKEDATASET.views.panel_datset_type import PanelDatasetType
 from APP.MAKEDATASET.views.panel_choose_path import PanelChoosePath
 from APP.MAKEDATASET.views.panel_select_camera import PanelSelectCamera
-from APP.MAKEDATASET.views.stack import StackWidget
+from APP.views.basic.stack import StackWidget
 
     
 class PanelBasicConfig(StackWidget):
