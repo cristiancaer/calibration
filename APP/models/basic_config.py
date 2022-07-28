@@ -6,6 +6,6 @@ ZMIN = 4000
 ZMAX = 20000
 IMAGE_SHAPE = (480, 640)
 ################################################################################
-CC_ICON_PATH='APP/MAKEDATASET/views/basic/icons/cc.jpg'
+CC_ICON_PATH='APP/views/basic/icons/cc.jpg'
 TEST_IMG=CC_ICON_PATH
 TEST_PATH = './test'

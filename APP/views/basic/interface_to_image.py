@@ -1,6 +1,6 @@
 import sys
 sys.path.append('./')
-from APP.MAKEDATASET.views import depth2color
+from APP.control import depth2color
 from PyQt5.QtGui import QPixmap, QImage
 import cv2
 import numpy as np
@@ -34,12 +34,12 @@ class InterfaceForImage():
             QPixmap: object to show a image into a QLabel
         """
         # the most part of time the image keep the shape
+        if frame.dtype == np.uint16:
+            frame = depth2color(frame)
         if self.shape != frame.shape:
             self.shape = frame.shape
             self.height_img, self.width_img, self.channels = frame.shape
             self.bytes_per_line = self.channels*self.width_img
-        if frame.dtype == np.uint16:
-            frame = depth2color(frame)
         image = QImage(frame.data, self.width_img, self.height_img,
                        self.bytes_per_line, self.image_format)
         pixmap = QPixmap(QPixmap.fromImage(image))
