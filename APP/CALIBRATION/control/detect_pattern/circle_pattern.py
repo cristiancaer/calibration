@@ -75,6 +75,31 @@ class CirclePoints:
             centers=self.sort_centers(centers)
     
         return ret,centers
+    
+    def get_object_points(self, diameter:float)-> np.ndarray:
+        """_summary_
+
+        Args:
+            diameter (float): distance between mid circle points. 
+
+        Returns:
+            np.ndarray: shape[nrow*ncolumn,1,2]. has points like 0,0,0), (1,0,0), (2,0,0)...., (6,5,0), if nrow=6 and ncolumn=5
+        """
+        object_points = np.zeros((self.nf*self.nc,3), np.float32)# 3 is due to (x,y,z)
+        object_points[:,:2] = np.mgrid[0:self.nc,0:self.nf].T.reshape(-1,2)# make a chessboard grid
+
+        # make coord plane having in main the pattern measures and its asymmetric shape
+        object_points=object_points.reshape(self.nf,self.nc,3)
+        for i in range(self.nf):
+            # distance between rows
+          object_points[i,:,1]=self.d*object_points[i,:,1]
+        #distance between the mid point of the circles at the same row
+          if i%2==0:
+            object_points[i,:,0]=self.d*2*object_points[i,:,0]
+          else:# moved rows
+            object_points[i,:,0]=self.d*2*object_points[i,:,0]+self.d
+        object_points=object_points.reshape(self.nf*self.nc,3) 
+        return object_points
 
     def draw_centers(self, img: np.ndarray, centers: np.ndarray) -> np.ndarray:
         return self._draw_points(img,centers)
