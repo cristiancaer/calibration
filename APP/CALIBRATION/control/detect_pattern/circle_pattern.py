@@ -125,12 +125,11 @@ if __name__=='__main__':
     
     def f_process(img_data: ImgData):
         rgb = img_data.images.get(ImgTypeNames.rgb)
-        
         if rgb is not None:
             ret, centers = detect_pattern.get_center_circle_points(rgb)
             if ret:
                 rgb = detect_pattern.draw_centers(rgb, centers)
-                img_data.images[ImgTypeNames.rgb] = rgb
+                img_data.update_img(ImgTypeNames.rgb, rgb)
             else:
                 print('there was not circle detection')
         return img_data

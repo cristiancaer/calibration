@@ -26,4 +26,5 @@ class ImgData:
         self.index = index
         self.images = images.data
         
-        
+    def update_img(self, img_name: str, img: np.ndarray) -> None:
+        self.images.update({img_name: img})
