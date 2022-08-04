@@ -1,6 +1,5 @@
 
 import sys
-from tkinter import image_types
 import numpy as np
 import cv2
 sys.path.append('./')
@@ -28,12 +27,15 @@ class NamesHandler():
             self.message = 'images no found'
         self.actual_id = 0 #  actual_id(id in list) != index (prefix_index)
         
+        self.read_completed = False # to indicate that all the image had been read
+        
     def delete_index(self, id: int):
         self.list_index.pop(id)
     
     def go_next_id(self) -> int:
         self.actual_id += 1
-        if self.actual_id > len(self.list_index):
+        if self.actual_id >= len(self.list_index):
+            self.read_completed = True
             self.actual_id = 0
             
     def go_back_id(self) -> int:
@@ -57,6 +59,18 @@ class NamesHandler():
         if self.depth_prefix:
             depth = self._read_img(self.depth_prefix)
         return ImgData(self.actual_id, ImgTypes(rgb=rgb, depth=depth))
+
+    def get_next_data(self):
+        self.go_next_id()
+        return self.read_last_pair()
+    
+    def get_back_data(self):
+        self.go_back_id()
+        return self.read_last_pair()
+    
+    def reset_reading(self):
+        self.actual_id = 0
+        self.read_completed = False
 
 #TEST
 ################################################################################
