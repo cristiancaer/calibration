@@ -5,7 +5,7 @@ import sys
 import numpy as np
 sys.path.append('./')
 from APP.CALIBRATION.models.data_objects import ImgTypeNames
-from APP.control import depth2uint8
+from APP.control import depth2color, depth2uint8
 from APP.CALIBRATION.control.detect_pattern.circle_detector import get_circle_detector
 
 
@@ -24,7 +24,7 @@ class CirclePoints:
         improved_img[np.where(improved_img==0)] = improved_img.max()# the missing pixels will join to background
     
         _, mask = cv2.threshold(improved_img,0,255,cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
-        improved_img = depth_img.copy()*mask
+        improved_img = improved_img*mask
     
         return improved_img
     
@@ -85,20 +85,20 @@ class CirclePoints:
         Returns:
             np.ndarray: shape[nrow*ncolumn,1,2]. has points like 0,0,0), (1,0,0), (2,0,0)...., (6,5,0), if nrow=6 and ncolumn=5
         """
-        object_points = np.zeros((self.nf*self.nc,3), np.float32)# 3 is due to (x,y,z)
-        object_points[:,:2] = np.mgrid[0:self.nc,0:self.nf].T.reshape(-1,2)# make a chessboard grid
+        object_points = np.zeros((self.nrow*self.ncolumn,3), np.float32)# 3 is due to (x,y,z)
+        object_points[:,:2] = np.mgrid[0:self.ncolumn,0:self.nrow].T.reshape(-1,2)# make a chessboard grid
 
         # make coord plane having in main the pattern measures and its asymmetric shape
-        object_points=object_points.reshape(self.nf,self.nc,3)
-        for i in range(self.nf):
+        object_points=object_points.reshape(self.nrow,self.ncolumn,3)
+        for i in range(self.nrow):
             # distance between rows
-          object_points[i,:,1]=self.d*object_points[i,:,1]
+          object_points[i,:,1]=diameter*object_points[i,:,1]
         #distance between the mid point of the circles at the same row
           if i%2==0:
-            object_points[i,:,0]=self.d*2*object_points[i,:,0]
+            object_points[i,:,0]=diameter*2*object_points[i,:,0]
           else:# moved rows
-            object_points[i,:,0]=self.d*2*object_points[i,:,0]+self.d
-        object_points=object_points.reshape(self.nf*self.nc,3) 
+            object_points[i,:,0]=diameter*2*object_points[i,:,0]+diameter
+        object_points=object_points.reshape(self.nrow*self.ncolumn,3) 
         return object_points
 
     def draw_centers(self, img: np.ndarray, centers: np.ndarray) -> np.ndarray:
@@ -111,6 +111,8 @@ class CirclePoints:
         ncolum = self.ncolumn
         if are_points_between_circles:
             ncolum -= 1 # A column is lost,  when we calc the points_between_circles
+        if img.dtype == np.uint16:
+            img = depth2color(img)
         img = cv2.drawChessboardCorners(img, (ncolum, self.nrow), points, True)
         return img
     
@@ -122,21 +124,26 @@ if __name__=='__main__':
     from APP.models.basic_config import TEST_IMG_PATH
     from APP.CALIBRATION.models.data_objects import ImgData
     from PyQt5.QtWidgets import QApplication
+    from APP.models.basic_config import DEPTH_PREFIX, RGB_PREFIX
+
     
+    prefix = ImgTypeNames.depth
+    is_depth = True
     def f_process(img_data: ImgData):
-        rgb = img_data.images.get(ImgTypeNames.rgb)
-        if rgb is not None:
-            ret, centers = detect_pattern.get_center_circle_points(rgb)
+        img = img_data.images.get(prefix)
+        if img is not None:
+            ret, centers = detect_pattern.get_center_circle_points(img, is_depth)
+
             if ret:
-                rgb = detect_pattern.draw_centers(rgb, centers)
-                img_data.update_img(ImgTypeNames.rgb, rgb)
+                img = detect_pattern.draw_centers(img, centers)
+                img_data.update_img(prefix, img)
             else:
                 print('there was not circle detection')
         return img_data
     
-    names_handler = NamesHandler(TEST_IMG_PATH, rgb_prefix='rgb')
+    names_handler = NamesHandler(TEST_IMG_PATH, rgb_prefix=RGB_PREFIX, depth_prefix=DEPTH_PREFIX)
     detect_pattern = CirclePoints(nrow= 9, ncolumn=6)
     app = QApplication(sys.argv)
-    window = ImageMedia(names_handler, f_process, list_img_names=[ImgTypeNames.rgb])
+    window = ImageMedia(names_handler, f_process, list_img_names=[prefix])
     window.show()
     sys.exit(app.exec())
