@@ -1,9 +1,9 @@
-from curses import window
 from typing import List, Tuple
 import cv2
 import sys
 import numpy as np
 sys.path.append('./')
+from APP.CALIBRATION.models.calibration_sections import Sections
 from APP.CALIBRATION.control.calibration_sections import UvSection
 from APP.CALIBRATION.control.files.names_handler import NamesHandler
 from APP.CALIBRATION.control.detect_pattern.circle_pattern import CirclePoints
@@ -68,7 +68,10 @@ class UvCalibration():
         
         mtx_opt, roi = cv2.getOptimalNewCameraMatrix(mtx, dist,img_shape[::-1],1)# the shape must be [width, height]
         list_error = self.get_projection_errors(list_img_points, list_obj_points, rotation_vectors, translation_vectors, mtx, dist )
-        uv_section = UvSection()
+        if is_depth:
+            uv_section = UvSection(section_name=Sections.UV_DEPTH)
+        else:
+            uv_section = UvSection(section_name=Sections.UV_RGB)
         uv_section.update(mtx, mtx_opt, dist, roi, list_error.mean())
         return uv_section, list_error  
             

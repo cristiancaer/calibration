@@ -3,25 +3,41 @@ import cv2
 import sys
 sys.path.append('./')
 from APP.CALIBRATION.models.calibration_sections import *
+from APP.control.utils import recover
+from APP.CALIBRATION.control.calibration_sections.sections_handler import SectionsSaveHandler
 
 
+class CalibrationSection:
+    section_name:str = None
+    
+    def __init__(self, dict_fields: Dict[str, any])->None:
+        """use to load/store a section calibration data from a dict(json) variable.
+        use the update() function when the data don't came from a dict
+
+        Args:
+            stored_data (Dict[str, any], optional): the first level has de different sections, the second level has the fields of the  calibration. Defaults to None.
+        """
+        self.set_from_dict(dict_fields.get(self.section_name))
+    
+    def set_from_dict(self,dict_fields: Dict[str, any]) ->None:
+        pass
+    
+    def as_dict(self) -> Dict[str, any]:
+        fields = self.__dict__
+        fields.pop('section_name', None)# quit section name, let only the section fields
+        data = {self.section_name: fields}
+        return data
+    
+    def save(self, path, filename):
+        save_handler = SectionsSaveHandler(self.as_dict())
+        save_handler.save(path, filename)
+    
 class UvSection(CalibrationSection):
     mtx_intrin = None
     optimized_intrin = None
     distortion_coeff = None
     roi = None
     error = None
-
-    def __init__(self, stored_data: Dict[str, Dict[str, any]] = None, prefix: str = None) -> None:
-        """use to load/store the uv calibration data from a dict(json) variable.
-        use the update() function when the data don't came from a dict
-
-        Args:
-            stored_data (Dict[str, Dict[str, any]], optional): the first level divide rgb and depth data, the second level has the fields of the uv calibration. Defaults to None.
-            prefix (str, optional): rgb or depth prefix. Defaults to None.
-        """
-        if stored_data:
-            self.set_from_dict(stored_data[prefix])
 
     def set_from_dict(self, dict_fields: Dict[str, any]) -> None:
         self.mtx_intrin = dict_fields.get(UvFields.MTX_INTRIN)
@@ -50,18 +66,23 @@ class UvSection(CalibrationSection):
         return undistorted_img
 
 
+class UvSectionRgb(UvSection):
+    section_name =  Sections.UV_RGB
+    
+    
+class UvSectionDepth(UvSection):
+    section_name =  Sections.UV_DEPTH
+
+
 class ZSection(CalibrationSection):
-    description = None
+    description = "depth_img_norm[0-1] = coeff0.img_norm² + coeff1.img_norm + coffe2"
     coeff0 = None
     coeff1 = None
     coeff2 = None
     zmin = None
     zmax = None
-
-    def __init__(self, stored_data: Dict[str, Dict[str, any]] = None, type: str = None) -> None:
-        if stored_data:
-            self.set_from_dict(stored_data[Sections.Z_CAL])
-
+    section_name = Sections.Z_CAL
+        
     def set_from_dict(self, dict_fields: Dict[str, any]) -> None:
         self.description = dict_fields.get(ZFields.DESCRIPTION)
         self.coeff0 = dict_fields.get(ZFields.COEFF0)
@@ -70,9 +91,7 @@ class ZSection(CalibrationSection):
         self.zmin = dict_fields.get(ZFields.ZMIN)
         self.zmax = dict_fields.get(ZFields.ZMAX)
     
-    def update(self, description: str, coeff0: np.ndarray, coeff1: np.ndarray, coeff2: np.ndarray, zmin:float, zmax: float):
-        if description is not None:
-            self.description = description
+    def update(self, coeff0: np.ndarray, coeff1: np.ndarray, coeff2: np.ndarray, zmin:float, zmax: float):
         if coeff0 is not None:
             self.coeff0 = coeff0
         if coeff1 is not None:
@@ -91,7 +110,9 @@ class ZSection(CalibrationSection):
         return z_norm*(self.zmax - self.zmin) + self.zmin
 
     def undistort(self, depth_img: np.ndarray) -> np.ndarray:
-        z_norm = depth_img.astype(float)
+        
+        z_norm = recover(depth_img).astype(float)
+        z_norm = self.normalization(z_norm)
         z_undistorted = self.coeff0*z_norm**2 + self.coeff1*z_norm + self.coeff2
         z_denorm = self.de_normalization(z_undistorted)
         return z_denorm
@@ -103,10 +124,7 @@ class AreaSection(CalibrationSection):
     zmax = None
     units = None
     description = None
-
-    def __init__(self, stored_data: Dict[str, Dict[str, any]] = None, type: str = None) -> None:
-        if stored_data:
-            self.set_from_dict(stored_data[Sections.AREA])
+    section_name = Sections.AREA
 
     def set_from_dict(self, dict_fields: Dict[str, any]) -> None:
         self.polynomial = dict_fields.get(AreaFields.POLYNOMIAL)
@@ -144,10 +162,7 @@ class AreaSection(CalibrationSection):
 class HomographySection(CalibrationSection):
     mtx = None
     error = None
-
-    def __init__(self, stored_data: Dict[str, Dict[str, any]] = None, type: str = None) -> None:
-        if stored_data:
-            self.set_from_dict(stored_data[Sections.HOMOGRAPHY])
+    section_name = Sections.HOMOGRAPHY
 
     def set_from_dict(self, dict_fields: Dict[str, any]) -> None:
         self.mtx = dict_fields.get(HomographyFields.MTX)
@@ -168,10 +183,7 @@ class HomographySection(CalibrationSection):
 class ImgRefSection(CalibrationSection):
     img = None
     depth_mean = None
-
-    def __init__(self, stored_data: Dict[str, Dict[str, any]] = None, type: str = None) -> None:
-        if stored_data:
-            self.set_from_dict(stored_data[Sections.IMG_REF])
+    section_name = Sections.CAMERA_INFO
 
     def set_from_dict(self, dict_fields: Dict[str, any]) -> None:
         self.img = dict_fields.get(ImgRefFields.IMG)
@@ -186,10 +198,7 @@ class ImgRefSection(CalibrationSection):
 class DensitySection(CalibrationSection):
     description = None
     polynomial = None
-
-    def __init__(self, stored_data: Dict[str, Dict[str, any]] = None, type: str = None) -> None:
-        if stored_data:
-            self.set_from_dict(stored_data[Sections.DENSITY])
+    section_name = Sections.DENSITY
 
     def set_from_dict(self, dict_fields: Dict[str, any]) -> None:
         self.description = dict_fields.get(DensityFields.DESCRIPTION)
@@ -205,6 +214,7 @@ class DensitySection(CalibrationSection):
 class CameraInfoSection(CalibrationSection):
     description = None
     name = None
+    section_name = Sections.CAMERA_INFO
 
     def __init__(self, stored_data: Dict[str, Dict[str, any]] = None, type: str = None) -> None:
         if stored_data:

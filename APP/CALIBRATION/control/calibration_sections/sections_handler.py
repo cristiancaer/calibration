@@ -14,7 +14,7 @@ class NumpyEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, obj)
         
         
-class SectionsHandler:
+class SectionsSaveHandler:
     def __init__(self, dict_sections: Dict[str, Dict[str, any]]= None)->None:
         
         self.data = {}
