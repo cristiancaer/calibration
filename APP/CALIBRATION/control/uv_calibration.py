@@ -3,8 +3,7 @@ import cv2
 import sys
 import numpy as np
 sys.path.append('./')
-from APP.CALIBRATION.models.calibration_sections import Sections
-from APP.CALIBRATION.control.calibration_sections import UvSection
+from APP.CALIBRATION.control.calibration_sections import UvSection, UvSectionDepth, UvSectionRgb
 from APP.CALIBRATION.control.files.names_handler import NamesHandler
 from APP.CALIBRATION.control.detect_pattern.circle_pattern import CirclePoints
 from APP.CALIBRATION.models.data_objects import ImgTypeNames
@@ -69,9 +68,9 @@ class UvCalibration():
         mtx_opt, roi = cv2.getOptimalNewCameraMatrix(mtx, dist,img_shape[::-1],1)# the shape must be [width, height]
         list_error = self.get_projection_errors(list_img_points, list_obj_points, rotation_vectors, translation_vectors, mtx, dist )
         if is_depth:
-            uv_section = UvSection(section_name=Sections.UV_DEPTH)
+            uv_section = UvSectionRgb()
         else:
-            uv_section = UvSection(section_name=Sections.UV_RGB)
+            uv_section = UvSectionDepth()
         uv_section.update(mtx, mtx_opt, dist, roi, list_error.mean())
         return uv_section, list_error  
             
@@ -83,13 +82,16 @@ class UvCalibration():
             list_error.append(error)
         return np.array(list_error)
 
+
 #TEST
 ################################################################################
 if __name__=='__main__':
-    from APP.models.basic_config import TEST_IMG_PATH, RGB_PREFIX, DEPTH_PREFIX
+    from APP.models.basic_config import TEST_IMG_PATH, RGB_PREFIX, DEPTH_PREFIX, CONFIG_PATH, CONFIG_NAME
     from APP.CALIBRATION.control.app_panels.img_media import ImageMedia
     from APP.CALIBRATION.models.data_objects import ImgData
+    from APP.views.basic import yes_no_message_box, ok_message_box
     from PyQt5.QtWidgets import QApplication
+    from PyQt5.QtCore import QCoreApplication
     
     # calibration
     names_handler = NamesHandler(TEST_IMG_PATH, rgb_prefix=RGB_PREFIX, depth_prefix=DEPTH_PREFIX)
@@ -113,6 +115,7 @@ if __name__=='__main__':
         return img_data
         
     def process_function(img_data: ImgData):
+        window.show_skip_button()
         if ImgTypeNames.rgb in img_data.images:
             img_data = undistort(img_data, ImgTypeNames.rgb, rgb_uv_section)
         
@@ -127,5 +130,14 @@ if __name__=='__main__':
     
     app = QApplication(sys.argv)
     window = ImageMedia(names_handler, process_function, [ImgTypeNames.rgb,ImgTypeNames.depth])
+    window.button_skip.clicked.connect(QCoreApplication.instance().quit)
     window.show()
-    sys.exit(app.exec())
+    app.exec()
+
+    status = yes_no_message_box('do you want to save the config data?')
+
+    if  status:
+        depth_uv_section.save(CONFIG_PATH,CONFIG_NAME)
+        rgb_uv_section.save(CONFIG_PATH,CONFIG_NAME)
+        ok_message_box(f'config saved\n {CONFIG_PATH}/{CONFIG_NAME}')
+    sys.exit()
