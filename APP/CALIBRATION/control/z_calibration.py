@@ -162,15 +162,15 @@ if __name__=='__main__':
             image_data.update_img(ImgTypeNames.process, undistorted_img)
         return image_data
     
-    app = QApplication(sys.argv)
+    
     window = ImageMedia(names_handler, process_function, list_img_names=[ImgTypeNames.depth, ImgTypeNames.process])
-    window.button_skip.clicked.connnect(QCoreApplication.instance().quit)
+    window.button_skip.clicked.connect(QCoreApplication.instance().quit)
     window.show()
     app.exec()
-    status = yes_no_message_box('do you want to save the config data')
-    if status:
+    save = yes_no_message_box('do you want to save the config data?')
+    if save:
         z_section.save(CONFIG_PATH, CONFIG_NAME)
-        ok_message_box(f'config saved\n {CONFIG_PATH}/{CONFIG_NAME}')
+        ok_message_box(f'config saved in: \n {CONFIG_PATH}/{CONFIG_NAME}')
     sys.exit()
     
     
