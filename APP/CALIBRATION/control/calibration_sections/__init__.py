@@ -10,14 +10,17 @@ from APP.CALIBRATION.control.calibration_sections.sections_handler import Sectio
 class CalibrationSection:
     section_name:str = None
     
-    def __init__(self, dict_fields: Dict[str, any])->None:
+    def __init__(self, dict_sections: Dict[str, any]= None)->None:
         """use to load/store a section calibration data from a dict(json) variable.
         use the update() function when the data don't came from a dict
 
         Args:
             stored_data (Dict[str, any], optional): the first level has de different sections, the second level has the fields of the  calibration. Defaults to None.
         """
-        self.set_from_dict(dict_fields.get(self.section_name))
+        if dict_sections:
+            section = dict_sections.get(self.section_name)
+            if section:
+                self.set_from_dict(section)
     
     def set_from_dict(self,dict_fields: Dict[str, any]) ->None:
         pass
@@ -91,7 +94,7 @@ class ZSection(CalibrationSection):
         self.zmin = dict_fields.get(ZFields.ZMIN)
         self.zmax = dict_fields.get(ZFields.ZMAX)
     
-    def update(self, coeff0: np.ndarray, coeff1: np.ndarray, coeff2: np.ndarray, zmin:float, zmax: float):
+    def update(self, coeff0: np.ndarray=None, coeff1: np.ndarray=None, coeff2: np.ndarray=None, zmin:float=None, zmax: float=None):
         if coeff0 is not None:
             self.coeff0 = coeff0
         if coeff1 is not None:
@@ -110,8 +113,12 @@ class ZSection(CalibrationSection):
         return z_norm*(self.zmax - self.zmin) + self.zmin
 
     def undistort(self, depth_img: np.ndarray) -> np.ndarray:
-        
-        z_norm = recover(depth_img).astype(float)
+        if len(depth_img.shape)==3:
+            depth_img = depth_img[:,:,0]
+        depth_img = recover(depth_img)
+        if self.coeff0 is None:
+            return depth_img
+        z_norm = depth_img.astype(float)
         z_norm = self.normalization(z_norm)
         z_undistorted = self.coeff0*z_norm**2 + self.coeff1*z_norm + self.coeff2
         z_denorm = self.de_normalization(z_undistorted)
@@ -134,7 +141,7 @@ class AreaSection(CalibrationSection):
         self.description = dict_fields.get(AreaFields.DESCRIPTION)
         print('description', dict_fields.get(AreaFields.DESCRIPTION))
     
-    def update(self, polynomial: np.ndarray, zmin: float, zmax: float, units: float, description: str):
+    def update(self, polynomial: np.ndarray=None, zmin: float=None, zmax: float=None, units: float=None, description: str=None):
         if polynomial is not None:    
             self.polynomial = polynomial
         if zmin is not None:
@@ -148,7 +155,7 @@ class AreaSection(CalibrationSection):
     def normalization(self, depth_row: np.ndarray) -> np.ndarray:
         return (depth_row - self.zmin)/(self.zmax - self.zmin)
 
-    def set_area_model(self):
+    def get_area_model(self):
         def get_area(depth_row: np.ndarray) -> np.ndarray:
             norm_row = self.normalization(depth_row.copy())
             area_row = np.polyval(self.polynomial, norm_row)
@@ -168,13 +175,15 @@ class HomographySection(CalibrationSection):
         self.mtx = dict_fields.get(HomographyFields.MTX)
         self.error = dict_fields.get(HomographyFields.ERROR)
     
-    def update(self, mtx: np.ndarray, error: float):
+    def update(self, mtx: np.ndarray=None, error: float=None):
         if mtx is not None:
             self.mtx = mtx
         if error is not None:
             self.error = error
 
     def rgb2depth(self, rgb_img: np.ndarray) -> np.ndarray:
+        if self.mtx is None:
+            return rgb_img
         img_to_depth = cv2.warpPerspective(
             rgb_img, self.mtx, (rgb_img.shape[1], rgb_img.shape[0]))
         return img_to_depth
@@ -183,13 +192,13 @@ class HomographySection(CalibrationSection):
 class ImgRefSection(CalibrationSection):
     img = None
     depth_mean = None
-    section_name = Sections.CAMERA_INFO
+    section_name = Sections.IMG_REF
 
     def set_from_dict(self, dict_fields: Dict[str, any]) -> None:
         self.img = dict_fields.get(ImgRefFields.IMG)
         self.depth_mean = dict_fields.get(ImgRefFields.DEPTH_MEAN)
 
-    def update(self, img: np.ndarray, depth_mean: float):
+    def update(self, img: np.ndarray=None, depth_mean: float=None):
         if img is not None:
             self.img = img
         if depth_mean is not None:
@@ -204,7 +213,7 @@ class DensitySection(CalibrationSection):
         self.description = dict_fields.get(DensityFields.DESCRIPTION)
         self.polynomial = dict_fields.get(DensityFields.POLYNOMIAL)
 
-    def update(self, description: str, polynomial: np.ndarray):
+    def update(self, description: str=None, polynomial: np.ndarray=None):
         if description is not None:
             self.description = description
         if polynomial is not None:
@@ -224,7 +233,7 @@ class CameraInfoSection(CalibrationSection):
         self.description = dict_fields.get(CameraFields.DESCRIPTION)
         self.name = dict_fields.get(CameraFields.NAME)
     
-    def update(self, description: str, name: str):
+    def update(self, description: str=None, name: str=None):
         if description is not None:
             self.description = description
         if name is not None:
