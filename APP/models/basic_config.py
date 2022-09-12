@@ -1,6 +1,7 @@
 TEST_IMG_PATH = './images/'
 TEST_IMG_Z_PATH = './images/z/'
 TEST_IMG_AREA_PATH = './images/area/'
+TEST_IMG_HOMOGRAPHY_PATH = './images/distorsion'
 RGB_PREFIX = 'rgb'
 DEPTH_PREFIX = 'depth'
 HOUR_FORMAT = "%Y_%m_%d_%H_%M_%S_%f"
