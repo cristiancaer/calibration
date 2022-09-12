@@ -1,5 +1,5 @@
 from PyQt5.QtGui import QFont
-from PyQt5.QtWidgets import QLabel,QWidget, QGroupBox, QHBoxLayout, QLineEdit, QSizePolicy, QSpacerItem, QSpinBox
+from PyQt5.QtWidgets import QLabel,QWidget, QGroupBox, QHBoxLayout, QLineEdit, QSizePolicy, QSpacerItem, QSpinBox, QMessageBox
 from PyQt5.QtCore import Qt
 
 
@@ -85,4 +85,22 @@ class CustomSpinBox(QWidget):
     def get_value(self)-> int:
         return self.spin_box.value()
         
-        
+
+
+def yes_no_message_box( message: str):
+    """
+    each call will make a new box message
+    """
+    dialog = QMessageBox()
+    dialog.setText(message)
+    dialog.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+    status = dialog.exec_()
+    if status== QMessageBox.Yes:
+        return True
+    return False
+
+def ok_message_box(message):
+    dialog = QMessageBox()
+    dialog.setText(message)
+    dialog.setStandardButtons(QMessageBox.Ok)
+    status = dialog.exec_()
