@@ -1,16 +1,6 @@
 from typing import Dict
+import sys
 
-
-class CalibrationSection:
-    def __init__(self, **dict_fields: Dict[str, any])->None:
-        self.set_from_dict(dict_fields)
-    
-    def set_from_dict(self,dict_fields: Dict[str, any]) ->None:
-        pass
-    
-    def as_dict(self) -> Dict[str, any]:
-        return self.__dict__
-    
 class AreaFields():
     DESCRIPTION = 'description'
     POLYNOMIAL = 'polynomial'

@@ -39,12 +39,18 @@ class PanelImgMedia(QWidget):
         self.back_next_buttons.next.setText('Next img')
         self.back_next_buttons.setMaximumHeight(70)
         main_layout.addWidget(self.back_next_buttons, 1,0, 1,3)
+        self.button_skip = BasicButton('Skip')
+        self.button_skip.setVisible(False)
+        main_layout.addWidget(self.button_skip, 2, 0, 1,4)
     
     def update_imgs(self, data: ImgData):
         for img_name, img in data.images.items():
             img_panel = self.get_img_panel(img_name)
             if img_panel:
                 img_panel.update_image(img)
+    
+    def show_skip_button(self):
+        self.button_skip.setVisible(True)
         
     
 

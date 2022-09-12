@@ -16,7 +16,7 @@ class DrawDataToShow(DataToShow):
     ARROW_LENGTH = 0.7 # range min 0, max 1
     Len_CENTERED_LINES = 40
     FONT = cv2.FONT_HERSHEY_SIMPLEX
-    FONT_COLOR = (0, 255, 0)
+    FONT_COLOR = (0, 0, 255)
     FONT_SCALE = 0.7
     FONT_LINE = cv2.LINE_AA
     FONT_THICKNESS = 2

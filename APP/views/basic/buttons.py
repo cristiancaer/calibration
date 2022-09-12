@@ -73,12 +73,10 @@ class ButtonAndLabel(QWidget):
 class ButtonGetDir(ButtonAndLabel):
     def __init__(self, parent: QWidget= None):
         super().__init__('Open','SP_DirOpenIcon')
-    
-    
-# TEST
-##
 
 
+#TEST
+################################################################################
 if __name__ == '__main__':
     import sys
     app = QApplication(sys.argv)
