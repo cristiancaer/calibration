@@ -1,10 +1,12 @@
 
 import sys
+from typing import List
 import numpy as np
 import cv2
 sys.path.append('./')
 from APP.CALIBRATION.control.files import get_list_index
 from APP.CALIBRATION.models.data_objects import ImgData, ImgTypes
+from APP.CALIBRATION.models.data_objects import ImgData
 
 
 class NamesHandler():
@@ -12,6 +14,7 @@ class NamesHandler():
         self.path = path
         self.rgb_prefix = rgb_prefix
         self.depth_prefix = depth_prefix
+        self.message = None
         
         rgb_index = set(get_list_index(path, rgb_prefix))
         depth_index = set(get_list_index(path, depth_prefix))
@@ -28,13 +31,15 @@ class NamesHandler():
         self.actual_id = 0 #  actual_id(id in list) != index (prefix_index)
         
         self.read_completed = False # to indicate that all the image had been read
-        
+        if self.message:
+            print(self.message)
+            
     def delete_index(self, id: int):
         self.list_index.pop(id)
     
     def go_next_id(self) -> int:
         self.actual_id += 1
-        if self.actual_id >= len(self.list_index):
+        if self.actual_id >= len(self.list_index)-1:
             self.read_completed = True
             self.actual_id = 0
             
@@ -61,17 +66,31 @@ class NamesHandler():
         return ImgData(self.actual_id, ImgTypes(rgb=rgb, depth=depth))
 
     def get_next_data(self):
+        data = self.read_last_pair()
         self.go_next_id()
-        return self.read_last_pair()
+        return data
     
     def get_back_data(self):
+        data= self.read_last_pair()
         self.go_back_id()
-        return self.read_last_pair()
+        return data
     
     def reset_reading(self):
         self.actual_id = 0
         self.read_completed = False
-
+    
+    def get_list_imgs(self, prefix: str) -> List[np.ndarray]:
+        list_img: List[np.ndarray] = []
+        for data_image in self.get_img_data_list():
+            img = data_image.images.get(prefix)
+            if img is not None:
+               list_img.append(img)
+        return list_img
+    
+    def get_img_data_list(self) -> ImgData:
+        self.reset_reading()
+        while not self.read_completed:
+            yield self.get_next_data()
 #TEST
 ################################################################################
 
