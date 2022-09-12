@@ -15,6 +15,7 @@ class NamesHandler():
         self.rgb_prefix = rgb_prefix
         self.depth_prefix = depth_prefix
         self.message = None
+        self.list_index = []
         
         rgb_index = set(get_list_index(path, rgb_prefix))
         depth_index = set(get_list_index(path, depth_prefix))
@@ -33,13 +34,14 @@ class NamesHandler():
         self.read_completed = False # to indicate that all the image had been read
         if self.message:
             print(self.message)
-            
+        self.image_number = len(self.list_index)
+        
     def delete_index(self, id: int):
         self.list_index.pop(id)
     
     def go_next_id(self) -> int:
         self.actual_id += 1
-        if self.actual_id >= len(self.list_index)-1:
+        if self.actual_id >= self.image_number-1:
             self.read_completed = True
             self.actual_id = 0
             
