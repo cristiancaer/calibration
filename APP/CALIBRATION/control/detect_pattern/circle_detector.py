@@ -10,19 +10,19 @@ def get_circle_detector():
     # Filter by Area.
     blobParams.filterByArea = True
     blobParams.minArea = 100   # minArea may be adjusted to suit for your experiment
-    blobParams.maxArea = 2500 # maxArea may be adjusted to suit for your experiment
+    blobParams.maxArea = 25000 # maxArea may be adjusted to suit for your experiment
 
     # Filter by Circularity
     blobParams.filterByCircularity = True
-    blobParams.minCircularity = 0.01
+    blobParams.minCircularity = 0.8
 
     # Filter by Convexity
     blobParams.filterByConvexity = True
-    blobParams.minConvexity = 0.87
+    blobParams.minConvexity = 0.8
 
     # Filter by Inertia
     blobParams.filterByInertia = True
-    blobParams.minInertiaRatio = 0.5
+    blobParams.minInertiaRatio = 0.8
 
     # Create a detector with the parameters
     detector = cv2.SimpleBlobDetector_create(blobParams)
